@@ -46,23 +46,13 @@ export default function ArchivePhase({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const allCards: CardData[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith("card-")) {
-        try {
-          allCards.push(JSON.parse(localStorage.getItem(key)!));
-        } catch {
-          // skip
-        }
-      }
-    }
-    allCards.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-    setCards(allCards);
-    setLoading(false);
+    fetch("/api/cards")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setCards(data);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   return (

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { ensureTable, saveCard } from "@/lib/db";
 
 /* ===================================
    카드 생성 API — Claude 연동
@@ -71,12 +72,21 @@ export async function POST(req: NextRequest) {
     }
 
     const id = crypto.randomUUID();
+    const createdAt = new Date().toISOString();
+
+    // DB에 저장
+    try {
+      await ensureTable();
+      await saveCard({ id, nickname: body.nickname || "", answer: trimmed, generatedText, createdAt });
+    } catch (dbErr) {
+      console.error("DB save error:", dbErr);
+    }
 
     return NextResponse.json({
       id,
       answer: trimmed,
       generatedText,
-      createdAt: new Date().toISOString(),
+      createdAt,
     });
   } catch (error) {
     console.error("Generate API error:", error);

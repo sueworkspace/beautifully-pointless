@@ -1,23 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { generateNickname } from "@/lib/nickname";
-
-const sampleAnswers = [
-  { nickname: "졸린펭귄", answer: "비 오는 날 창밖 바라보기" },
-  { nickname: "빨간딸기", answer: "고양이 발바닥 젤리" },
-  { nickname: "금빛수달", answer: "쓸모없는 예쁜 돌멩이 줍기" },
-  { nickname: "느린거북이", answer: "해 질 녘 하늘 색 변화" },
-  { nickname: "보라앵두", answer: "오래된 LP판 잡음" },
-  { nickname: "신난토끼", answer: "뽁뽁이 터뜨리기" },
-  { nickname: "하얀고래", answer: "밤하늘에 별 세기" },
-  { nickname: "초록여우", answer: "낙엽 밟는 소리" },
-  { nickname: "파란사슴", answer: "쓰지 않는 예쁜 노트 모으기" },
-  { nickname: "분홍곰", answer: "구름 모양 상상하기" },
-  { nickname: "은빛참새", answer: "새벽 공기 한 모금" },
-  { nickname: "노란판다", answer: "오래된 동전 수집" },
-];
 
 interface QuestionPhaseProps {
   onSubmit: (answer: string, nickname: string) => void;
@@ -29,15 +14,21 @@ export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
   const [focused, setFocused] = useState(false);
   const [nicknameFocused, setNicknameFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [tickerItems, setTickerItems] = useState<{ nickname: string; answer: string }[]>([]);
 
-  // 마운트 시 한 번만 섞어서 고정
-  const shuffled = useMemo(() => {
-    const arr = [...sampleAnswers];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
+  // DB에서 랜덤 카드 가져오기
+  useEffect(() => {
+    fetch("/api/cards?mode=random")
+      .then((res) => res.json())
+      .then((cards) => {
+        if (Array.isArray(cards)) {
+          setTickerItems(cards.map((c: { nickname: string; answer: string }) => ({
+            nickname: c.nickname,
+            answer: c.answer,
+          })));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const canSubmit = nickname.trim() && answer.trim();
@@ -186,41 +177,43 @@ export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
         </p>
       </div>
 
-      {/* 다른 사람들의 답변 티커 */}
-      <motion.div
-        className="w-full max-w-[520px] mt-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3, delay: 0.5 }}
-        style={{ overflow: "hidden" }}
-      >
-        <p
-          className="pixel-label mb-2"
-          style={{ color: "var(--pixel-dark-gray)", textAlign: "center" }}
+      {/* 다른 사람들의 답변 티커 — 데이터 없으면 숨김 */}
+      {tickerItems.length > 0 && (
+        <motion.div
+          className="w-full max-w-[520px] mt-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.5 }}
+          style={{ overflow: "hidden" }}
         >
-          다른 사람들의 무용한 기쁨
-        </p>
-        <div style={{ overflow: "hidden", maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)" }}>
-          <div className="marquee-track" style={{ gap: "32px" }}>
-            {[...shuffled, ...shuffled].map((item, i) => (
-              <span
-                key={i}
-                style={{
-                  fontFamily: "var(--font-pixel)",
-                  fontSize: "12px",
-                  color: "var(--pixel-gray)",
-                  whiteSpace: "nowrap",
-                  padding: "0 16px",
-                }}
-              >
-                <span style={{ color: "var(--pixel-cyan)" }}>{item.nickname}</span>
-                {" : "}
-                {item.answer}
-              </span>
-            ))}
+          <p
+            className="pixel-label mb-2"
+            style={{ color: "var(--pixel-dark-gray)", textAlign: "center" }}
+          >
+            다른 사람들의 무용한 기쁨
+          </p>
+          <div style={{ overflow: "hidden", maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)" }}>
+            <div className="marquee-track" style={{ gap: "32px" }}>
+              {[...tickerItems, ...tickerItems].map((item, i) => (
+                <span
+                  key={i}
+                  style={{
+                    fontFamily: "var(--font-pixel)",
+                    fontSize: "12px",
+                    color: "var(--pixel-gray)",
+                    whiteSpace: "nowrap",
+                    padding: "0 16px",
+                  }}
+                >
+                  <span style={{ color: "var(--pixel-cyan)" }}>{item.nickname}</span>
+                  {" : "}
+                  {item.answer}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

@@ -84,21 +84,12 @@ export default function Home() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answer }),
+        body: JSON.stringify({ answer, nickname }),
       });
 
       if (!res.ok) throw new Error("Failed");
 
       const data = await res.json();
-
-      const cardData: CardData = {
-        id: data.id,
-        answer,
-        nickname,
-        generatedText: data.generatedText,
-        createdAt: data.createdAt,
-      };
-      localStorage.setItem(`card-${data.id}`, JSON.stringify(cardData));
 
       dispatch({
         type: "SUBMIT",
