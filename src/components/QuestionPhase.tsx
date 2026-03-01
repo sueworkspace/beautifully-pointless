@@ -1,0 +1,165 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { useState, useRef } from "react";
+import { generateNickname } from "@/lib/nickname";
+
+interface QuestionPhaseProps {
+  onSubmit: (answer: string, nickname: string) => void;
+}
+
+export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
+  const [nickname, setNickname] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [focused, setFocused] = useState(false);
+  const [nicknameFocused, setNicknameFocused] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const canSubmit = nickname.trim() && answer.trim();
+
+  const handleSubmit = () => {
+    if (!canSubmit) return;
+    onSubmit(answer.trim(), nickname.trim());
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  return (
+    <motion.div
+      className="phase-content min-h-screen flex flex-col justify-center items-center"
+      style={{ padding: "0 20px" }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15, ease: "linear" }}
+    >
+      <div className="w-full max-w-[520px]">
+        {/* NES 다이얼로그 프레임 */}
+        <div className="pixel-frame p-5 md:p-10">
+          {/* 질문 */}
+          <motion.h1
+            className="pixel-heading text-center"
+            style={{ marginTop: "40px", marginBottom: "20px", fontSize: "32px" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15, delay: 0.1 }}
+          >
+            나를 기쁘게 하는
+            <br />
+            아름답지만
+            <br />
+            <span style={{ color: "var(--pixel-cyan)" }}>무용한 것은?</span>
+          </motion.h1>
+
+          {/* 답변 입력 필드 */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15, delay: 0.2 }}
+          >
+            <textarea
+              ref={textareaRef}
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              onKeyDown={handleKeyDown}
+              placeholder="당신의 답을 적어주세요..."
+              rows={3}
+              maxLength={500}
+              className="w-full resize-none outline-none"
+              style={{
+                fontFamily: "var(--font-pixel)",
+                fontSize: "16px",
+                lineHeight: 1.8,
+                color: "var(--pixel-white)",
+                background: "var(--pixel-bg)",
+                border: focused
+                  ? "2px solid var(--pixel-blue)"
+                  : "2px solid var(--pixel-dark-gray)",
+                caretColor: "var(--pixel-green)",
+                padding: "12px",
+                imageRendering: "auto",
+                WebkitFontSmoothing: "none",
+              }}
+            />
+
+            {/* 닉네임 입력 */}
+            <div style={{ display: "flex", gap: "8px", marginTop: "12px", alignItems: "stretch" }}>
+              <input
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                onFocus={() => setNicknameFocused(true)}
+                onBlur={() => setNicknameFocused(false)}
+                placeholder="닉네임을 입력하세요"
+                maxLength={20}
+                className="outline-none"
+                style={{
+                  flex: 1,
+                  fontFamily: "var(--font-pixel)",
+                  fontSize: "14px",
+                  lineHeight: 1.8,
+                  color: "var(--pixel-white)",
+                  background: "var(--pixel-bg)",
+                  border: nicknameFocused
+                    ? "2px solid var(--pixel-blue)"
+                    : "2px solid var(--pixel-dark-gray)",
+                  caretColor: "var(--pixel-green)",
+                  padding: "10px 12px",
+                  imageRendering: "auto",
+                  WebkitFontSmoothing: "none",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setNickname(generateNickname())}
+                className="pixel-btn"
+                style={{
+                  fontSize: "12px",
+                  padding: "8px 12px",
+                  whiteSpace: "nowrap",
+                }}
+                title="랜덤 닉네임 생성"
+              >
+                랜덤
+              </button>
+            </div>
+
+            {/* 제출 버튼 */}
+            <motion.div
+              className="mt-6 text-center"
+              animate={{ opacity: canSubmit ? 1 : 0 }}
+              transition={{ duration: 0.1 }}
+            >
+              <button
+                onClick={handleSubmit}
+                disabled={!canSubmit}
+                className="pixel-btn"
+                style={{
+                  fontSize: "14px",
+                  padding: "10px 24px",
+                }}
+              >
+                시작 &gt;
+              </button>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* 힌트 — 모바일에서는 숨김 */}
+        <p
+          className="pixel-label text-center mt-4 hidden md:block"
+          style={{ color: "var(--pixel-dark-gray)" }}
+        >
+          Ctrl+Enter to submit
+        </p>
+      </div>
+    </motion.div>
+  );
+}
