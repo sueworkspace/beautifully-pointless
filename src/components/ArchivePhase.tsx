@@ -45,6 +45,19 @@ export default function ArchivePhase({
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!confirm("정말 삭제하시겠습니까?")) return;
+    try {
+      const res = await fetch(`/api/cards?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setCards((prev) => prev.filter((c) => c.id !== id));
+      }
+    } catch {
+      // ignore
+    }
+  };
+
   useEffect(() => {
     fetch("/api/cards")
       .then((res) => res.json())
@@ -187,7 +200,7 @@ export default function ArchivePhase({
                   {card.generatedText}
                 </p>
 
-                {/* 닉네임 + VIEW ART */}
+                {/* 닉네임 + VIEW ART + 삭제 */}
                 <div className="flex justify-between items-center">
                   {card.nickname && (
                     <span
@@ -197,9 +210,21 @@ export default function ArchivePhase({
                       — {card.nickname}
                     </span>
                   )}
-                <span className="pixel-label hover-flash-text" style={{ color: "var(--pixel-blue)" }}>
-                  보기 &gt;
-                </span>
+                  <div className="flex items-center gap-3">
+                    <span className="pixel-label hover-flash-text" style={{ color: "var(--pixel-blue)" }}>
+                      보기 &gt;
+                    </span>
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => handleDelete(e, card.id)}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleDelete(e as unknown as React.MouseEvent, card.id); }}
+                      className="pixel-label"
+                      style={{ color: "var(--pixel-dark-gray)", cursor: "pointer", fontSize: "11px" }}
+                    >
+                      X
+                    </span>
+                  </div>
                 </div>
               </motion.button>
             ))}

@@ -50,6 +50,16 @@ export async function getRandomCards(limit = 20): Promise<CardData[]> {
 /**
  * 전체 카드 조회 (최신순)
  */
+/**
+ * 카드 삭제
+ */
+export async function deleteCard(id: string) {
+  await sql`DELETE FROM cards WHERE id = ${id}`;
+}
+
+/**
+ * 전체 카드 조회 (최신순)
+ */
 export async function getAllCards(): Promise<CardData[]> {
   const { rows } = await sql`
     SELECT id, nickname, answer, generated_text, created_at

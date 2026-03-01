@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ensureTable, getRandomCards, getAllCards } from "@/lib/db";
+import { ensureTable, getRandomCards, getAllCards, deleteCard } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
@@ -18,6 +18,25 @@ export async function GET(req: NextRequest) {
     console.error("Cards API error:", error);
     return NextResponse.json(
       { error: "카드를 불러올 수 없습니다." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const id = req.nextUrl.searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ error: "id가 필요합니다." }, { status: 400 });
+    }
+
+    await ensureTable();
+    await deleteCard(id);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Card delete error:", error);
+    return NextResponse.json(
+      { error: "카드를 삭제할 수 없습니다." },
       { status: 500 }
     );
   }
