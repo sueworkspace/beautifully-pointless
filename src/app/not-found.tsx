@@ -79,7 +79,7 @@ export default function NotFound() {
       {/* 돌아가기 버튼 */}
       <a
         href="/"
-        className="pixel-btn hover-flash-text mt-8"
+        className="pixel-btn hover-flash-text mt-12"
         style={{ textDecoration: "none" }}
       >
         &lt; 돌아가기
@@ -87,7 +87,7 @@ export default function NotFound() {
 
       {/* 랜덤 카드 */}
       {card && (
-        <div className="mt-12 w-full" style={{ maxWidth: "400px" }}>
+        <div className="mt-16 w-full" style={{ maxWidth: "400px" }}>
           <div className="pixel-divider mb-6" />
 
           <p
