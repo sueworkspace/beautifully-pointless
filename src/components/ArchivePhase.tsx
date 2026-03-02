@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useRef, useCallback } from "react";
 import type { CardData } from "@/types";
 
 interface ArchivePhaseProps {
@@ -37,6 +37,93 @@ function PixelSpinner() {
   );
 }
 
+/* NES 스타일 삭제 확인 팝업 */
+function ConfirmDialog({
+  onConfirm,
+  onCancel,
+}: {
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <motion.div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(15, 15, 35, 0.8)",
+      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.1 }}
+      onClick={onCancel}
+    >
+      <motion.div
+        className="pixel-frame"
+        style={{
+          background: "var(--pixel-bg-alt)",
+          padding: "24px 28px",
+          maxWidth: "300px",
+          width: "calc(100% - 40px)",
+          textAlign: "center",
+        }}
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ duration: 0.1 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p
+          className="pixel-body"
+          style={{
+            color: "var(--pixel-white)",
+            marginBottom: "8px",
+            fontSize: "14px",
+          }}
+        >
+          정말 삭제하시겠습니까?
+        </p>
+        <p
+          className="pixel-label"
+          style={{
+            color: "var(--pixel-dark-gray)",
+            marginBottom: "24px",
+          }}
+        >
+          삭제된 기록은 복구할 수 없습니다.
+        </p>
+        <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+          <button
+            onClick={onCancel}
+            className="pixel-btn"
+            style={{ fontSize: "12px", padding: "8px 16px", minWidth: "80px" }}
+          >
+            취소
+          </button>
+          <button
+            onClick={onConfirm}
+            className="pixel-btn"
+            style={{
+              fontSize: "12px",
+              padding: "8px 16px",
+              minWidth: "80px",
+              background: "var(--pixel-red)",
+              borderColor: "var(--pixel-red)",
+              color: "var(--pixel-white)",
+            }}
+          >
+            삭제
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export default function ArchivePhase({
   onSelect,
   onBack,
@@ -45,6 +132,7 @@ export default function ArchivePhase({
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [ownedTokens, setOwnedTokens] = useState<Record<string, string>>({});
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -55,25 +143,30 @@ export default function ArchivePhase({
     }
   }, []);
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    const token = ownedTokens[id];
+    if (!ownedTokens[id]) return;
+    setDeleteTargetId(id);
+  };
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteTargetId) return;
+    const token = ownedTokens[deleteTargetId];
     if (!token) return;
-    if (!confirm("정말 삭제하시겠습니까?")) return;
     try {
-      const res = await fetch(`/api/cards?id=${id}&token=${encodeURIComponent(token)}`, { method: "DELETE" });
+      const res = await fetch(`/api/cards?id=${deleteTargetId}&token=${encodeURIComponent(token)}`, { method: "DELETE" });
       if (res.ok) {
-        setCards((prev) => prev.filter((c) => c.id !== id));
-        // localStorage에서도 토큰 제거
+        setCards((prev) => prev.filter((c) => c.id !== deleteTargetId));
         const updated = { ...ownedTokens };
-        delete updated[id];
+        delete updated[deleteTargetId];
         setOwnedTokens(updated);
         localStorage.setItem("deleteTokens", JSON.stringify(updated));
       }
     } catch {
       // ignore
     }
-  };
+    setDeleteTargetId(null);
+  }, [deleteTargetId, ownedTokens]);
 
   useEffect(() => {
     fetch("/api/cards")
@@ -179,7 +272,7 @@ export default function ArchivePhase({
                 {/* 넘버링 + 날짜 */}
                 <div className="flex justify-between items-center mb-3">
                   <span className="pixel-label" style={{ color: "var(--pixel-gold)" }}>
-                    NO.{String(index + 1).padStart(3, "0")}
+                    NO.{String(cards.length - index).padStart(3, "0")}
                   </span>
                   <span className="pixel-label" style={{ color: "var(--pixel-dark-gray)" }}>
                     {new Date(card.createdAt).toLocaleDateString("ko-KR", {
@@ -242,8 +335,8 @@ export default function ArchivePhase({
                       <span
                         role="button"
                         tabIndex={0}
-                        onClick={(e) => handleDelete(e, card.id)}
-                        onKeyDown={(e) => { if (e.key === "Enter") handleDelete(e as unknown as React.MouseEvent, card.id); }}
+                        onClick={(e) => handleDeleteClick(e, card.id)}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleDeleteClick(e as unknown as React.MouseEvent, card.id); }}
                         className="pixel-label p-1"
                         style={{ color: "var(--pixel-dark-gray)", cursor: "pointer", fontSize: "13px" }}
                       >
@@ -272,6 +365,16 @@ export default function ArchivePhase({
           </motion.div>
         </>
       )}
+
+      {/* 삭제 확인 팝업 */}
+      <AnimatePresence>
+        {deleteTargetId && (
+          <ConfirmDialog
+            onConfirm={handleDeleteConfirm}
+            onCancel={() => setDeleteTargetId(null)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

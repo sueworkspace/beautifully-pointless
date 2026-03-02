@@ -63,6 +63,18 @@ export default function ArtPhase({
           >
             — {nickname}
           </p>
+          {/* AI 생성 안내 */}
+          <p
+            className="pixel-label"
+            style={{
+              color: "var(--pixel-dark-gray)",
+              textAlign: "center",
+              marginTop: "16px",
+              fontSize: "10px",
+            }}
+          >
+            사용자가 입력한 답변을 바탕으로 AI가 작성한 문구입니다.
+          </p>
         </div>
 
         {/* 버튼 */}

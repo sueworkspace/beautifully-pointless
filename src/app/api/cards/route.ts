@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ensureTable, getRandomCards, getAllCards, deleteCard } from "@/lib/db";
+import { ensureTable, getRandomCards, getAllCards, getCardCount, deleteCard } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,6 +10,11 @@ export async function GET(req: NextRequest) {
     if (mode === "random") {
       const cards = await getRandomCards(20);
       return NextResponse.json(cards);
+    }
+
+    if (mode === "count") {
+      const count = await getCardCount();
+      return NextResponse.json({ count });
     }
 
     const cards = await getAllCards();

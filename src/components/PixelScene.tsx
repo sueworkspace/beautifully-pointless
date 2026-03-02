@@ -149,27 +149,27 @@ function getPixelColor(
   return PALETTE.text[idx];
 }
 
-/* ─── 텍스트 모드: 캔버스 줄바꿈 ─── */
+/* ─── 텍스트 모드: 캔버스 줄바꿈 (띄어쓰기 단위) ─── */
 
 function wrapCanvasText(
   ctx: CanvasRenderingContext2D,
   text: string,
   maxWidth: number
 ): string[] {
-  const chars = [...text];
+  const words = text.split(/(\s+)/); // 띄어쓰기 포함하여 분리
   const lines: string[] = [];
   let current = "";
 
-  for (const ch of chars) {
-    const test = current + ch;
-    if (ctx.measureText(test).width > maxWidth && current.length > 0) {
-      lines.push(current);
-      current = ch;
+  for (const word of words) {
+    const test = current + word;
+    if (ctx.measureText(test).width > maxWidth && current.trim().length > 0) {
+      lines.push(current.trimEnd());
+      current = word.trimStart();
     } else {
       current = test;
     }
   }
-  if (current) lines.push(current);
+  if (current.trim()) lines.push(current.trimEnd());
   return lines;
 }
 
@@ -218,7 +218,7 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
     const sw = window.innerWidth;
     const sh = window.innerHeight;
     const config = getPixelGridConfig(sw);
-    const threshold = 5;
+    const threshold = 3;
     const charCount = [...currentText].length;
 
     if (charCount > threshold) {

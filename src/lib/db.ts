@@ -60,6 +60,14 @@ export async function deleteCard(id: string, token: string) {
 }
 
 /**
+ * 전체 카드 수 조회
+ */
+export async function getCardCount(): Promise<number> {
+  const { rows } = await sql`SELECT COUNT(*)::int AS count FROM cards`;
+  return rows[0].count;
+}
+
+/**
  * 전체 카드 조회 (최신순)
  */
 export async function getAllCards(): Promise<CardData[]> {

@@ -16,8 +16,9 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
   const [nicknameFocused, setNicknameFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [tickerItems, setTickerItems] = useState<{ nickname: string; answer: string }[]>([]);
+  const [cardCount, setCardCount] = useState<number | null>(null);
 
-  // DB에서 랜덤 카드 가져오기
+  // DB에서 랜덤 카드 + 카드 수 가져오기
   useEffect(() => {
     fetch("/api/cards?mode=random")
       .then((res) => res.json())
@@ -30,12 +31,21 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
         }
       })
       .catch(() => {});
+
+    fetch("/api/cards?mode=count")
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.count === "number") setCardCount(data.count);
+      })
+      .catch(() => {});
   }, []);
 
-  const canSubmit = nickname.trim() && answer.trim();
+  const [submitting, setSubmitting] = useState(false);
+  const canSubmit = nickname.trim() && answer.trim() && !submitting;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
+    setSubmitting(true);
     onSubmit(answer.trim(), nickname.trim());
   };
 
@@ -69,7 +79,7 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
           minHeight: "auto",
         }}
       >
-        ARCHIVE
+        아카이브
       </button>
 
       <div className="w-full max-w-[520px]">
@@ -103,7 +113,7 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               onKeyDown={handleKeyDown}
-              placeholder="당신의 생각을 적어주세요..."
+              placeholder={cardCount !== null ? `${cardCount + 1}번째 당신의 생각을 적어주세요...` : "당신의 생각을 적어주세요..."}
               rows={3}
               maxLength={500}
               className="resize-none outline-none pixel-textarea"
