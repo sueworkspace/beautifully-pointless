@@ -167,10 +167,13 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
   textRef.current = text;
 
   // 픽셀 블록 크기 & 그리드 설정 (모바일 대응)
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-  const PIXEL_SIZE = isMobile ? 12 : 18;
-  const GRID_W = isMobile ? 80 : 120;
-  const GRID_H = isMobile ? 30 : 40;
+  const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
+  const isMobile = screenWidth < 768;
+  const GRID_W = isMobile ? 60 : 120;
+  const GRID_H = isMobile ? 24 : 40;
+  const PIXEL_SIZE = isMobile
+    ? Math.max(4, Math.floor((screenWidth * 0.9) / GRID_W))
+    : 18;
   const FRAME_SKIP = 6; // ~10fps at 60fps RAF
 
   const buildTextPixels = useCallback(() => {
@@ -247,7 +250,9 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
         const totalW = GRID_W * PIXEL_SIZE;
         const totalH = GRID_H * PIXEL_SIZE;
         const offsetX = Math.floor((w - totalW) / 2);
-        const offsetY = Math.floor((h - totalH) / 2) - 30;
+        const offsetY = isMobile
+          ? Math.floor(h * 0.3 - totalH / 2)
+          : Math.floor((h - totalH) / 2) - 30;
 
         // 행별 reveal 애니메이션
         if (revealRowRef.current < GRID_H) {
