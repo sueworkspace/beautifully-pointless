@@ -120,8 +120,8 @@ function drawFrameContent(
   const centerX = frameX + frameW / 2;
 
   // 답변 폰트 크기 자동 조정 (큰 텍스트)
-  const answerMaxFont = 36;
-  const answerMinFont = 20;
+  const answerMaxFont = 48;
+  const answerMinFont = 24;
   let answerSize = answerMaxFont;
   let answerLines: string[] = [];
 
@@ -137,7 +137,7 @@ function drawFrameContent(
   }
 
   // 생성 텍스트 폰트 크기 (답변보다 작게)
-  const genSize = Math.max(14, answerSize - 10);
+  const genSize = Math.max(18, answerSize - 12);
   ctx.font = `${genSize}px Galmuri14, monospace`;
   const genLines = wrapText(ctx, generatedText, maxWidth);
 
@@ -203,7 +203,7 @@ async function renderShareCard(options: ShareOptions): Promise<Blob> {
   drawFrameContent(ctx, options.answer, options.generatedText, frameX, frameY, frameW, frameH);
 
   // 5. 닉네임
-  ctx.font = "18px Galmuri11, monospace";
+  ctx.font = "22px Galmuri11, monospace";
   ctx.textAlign = "right";
   ctx.textBaseline = "top";
   ctx.fillStyle = "#A0A0B0";
@@ -214,19 +214,19 @@ async function renderShareCard(options: ShareOptions): Promise<Blob> {
   ctx.strokeStyle = "rgba(160, 160, 176, 0.15)";
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(CARD / 2 - 120, divY);
-  ctx.lineTo(CARD / 2 + 120, divY);
+  ctx.moveTo(CARD / 2 - 160, divY);
+  ctx.lineTo(CARD / 2 + 160, divY);
   ctx.stroke();
 
   // 7. 질문 문구
-  ctx.font = "16px Galmuri11, monospace";
+  ctx.font = "20px Galmuri11, monospace";
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   ctx.fillStyle = "rgba(160, 160, 176, 0.4)";
   ctx.fillText("나를 기쁘게 하는 아름답지만 무용한 것은?", CARD / 2, divY + 16);
 
   // 8. URL
-  ctx.font = "12px Galmuri9, monospace";
+  ctx.font = "14px Galmuri9, monospace";
   ctx.fillStyle = "rgba(160, 160, 176, 0.25)";
   ctx.fillText("pointless-joy.vercel.app", CARD / 2, CARD - 40);
 
