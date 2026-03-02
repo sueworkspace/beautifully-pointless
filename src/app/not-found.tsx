@@ -77,13 +77,15 @@ export default function NotFound() {
       </p>
 
       {/* 돌아가기 버튼 */}
-      <a
-        href="/"
-        className="pixel-btn hover-flash-text my-16"
-        style={{ textDecoration: "none" }}
-      >
-        &lt; 돌아가기
-      </a>
+      <div style={{ paddingTop: "80px", paddingBottom: "80px" }}>
+        <a
+          href="/"
+          className="pixel-btn hover-flash-text"
+          style={{ textDecoration: "none" }}
+        >
+          &lt; 돌아가기
+        </a>
+      </div>
 
       {/* 랜덤 카드 */}
       {card && (
