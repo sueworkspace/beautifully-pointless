@@ -191,6 +191,7 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
   // 텍스트 모드 refs
   const renderModeRef = useRef<"pixel" | "text">("pixel");
   const styledTextLinesRef = useRef<string[]>([]);
+  const styledFontSizeRef = useRef(20);
   const revealLineRef = useRef(0);
   const textShimmerIdxRef = useRef(-1);
   const textShimmerEndRef = useRef(0);
@@ -221,16 +222,37 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
       renderModeRef.current = "text";
       textPixelsRef.current = [];
 
-      // 캔버스에서 줄바꿈 계산
+      // 화면 높이의 상단 영역에 맞도록 동적 폰트 크기 결정
+      const sw = typeof window !== "undefined" ? window.innerWidth : 375;
+      const sh = typeof window !== "undefined" ? window.innerHeight : 667;
+      const maxWidth = isMobile ? sw * 0.8 : Math.min(sw * 0.6, 700);
+      const availableH = sh * (isMobile ? 0.45 : 0.55);
+
       const tempCanvas = document.createElement("canvas");
       const tempCtx = tempCanvas.getContext("2d")!;
-      const fontSize = isMobile ? 14 : 20;
-      tempCtx.font = `${fontSize}px Galmuri14, monospace`;
 
-      const maxWidth = isMobile
-        ? (typeof window !== "undefined" ? window.innerWidth : 375) * 0.7
-        : 600;
-      styledTextLinesRef.current = wrapCanvasText(tempCtx, textRef.current, maxWidth);
+      // 큰 폰트부터 시도, 화면에 맞을 때까지 축소
+      const maxFont = isMobile ? 22 : 32;
+      const minFont = isMobile ? 12 : 14;
+      let bestSize = maxFont;
+      let bestLines: string[] = [];
+
+      for (let fs = maxFont; fs >= minFont; fs -= 2) {
+        tempCtx.font = `${fs}px Galmuri14, monospace`;
+        const lines = wrapCanvasText(tempCtx, textRef.current, maxWidth);
+        const lineH = fs * 1.8;
+        const totalH = lines.length * lineH;
+        if (totalH <= availableH) {
+          bestSize = fs;
+          bestLines = lines;
+          break;
+        }
+        bestSize = fs;
+        bestLines = lines;
+      }
+
+      styledFontSizeRef.current = bestSize;
+      styledTextLinesRef.current = bestLines;
 
       revealLineRef.current = 0;
       textShimmerIdxRef.current = -1;
@@ -367,8 +389,8 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
       frame: number
     ) => {
       const lines = styledTextLinesRef.current;
-      const fontSize = isMobile ? 14 : 20;
-      const lineHeight = fontSize * 2;
+      const fontSize = styledFontSizeRef.current;
+      const lineHeight = fontSize * 1.8;
       const totalH = lines.length * lineHeight;
       const startY = isMobile
         ? Math.floor(h * 0.3 - totalH / 2)
