@@ -31,7 +31,7 @@ export default function LoadingPhase() {
           letterSpacing: "0.05em",
         }}
       >
-        무용한 생각 적는중{dots}
+        생각 적는중{dots}
       </p>
     </motion.div>
   );
