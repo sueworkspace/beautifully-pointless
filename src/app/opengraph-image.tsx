@@ -1,83 +1,68 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "무용한 기쁨 — Pointless Joy";
+export const alt = "무용한 기쁨 — 나를 기쁘게 하는 아름답지만 무용한 것은?";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OGImage() {
-  // NES 팔레트 별 데이터 (시드 기반 고정 위치)
+export default async function OGImage() {
+  // Galmuri 픽셀 폰트 로드
+  const fontData = await fetch(
+    "https://cdn.jsdelivr.net/npm/galmuri/dist/Galmuri14.ttf"
+  ).then((res) => res.arrayBuffer());
+
+  // 별빛 (작은 점, 앱 아이콘과 동일한 NES 팔레트)
   const stars = [
-    { x: 80, y: 50, s: 6, c: "#FCFCFC" },
-    { x: 200, y: 120, s: 4, c: "#3CBCFC" },
-    { x: 350, y: 80, s: 6, c: "#FCE030" },
-    { x: 500, y: 40, s: 4, c: "#9878FC" },
-    { x: 700, y: 100, s: 6, c: "#FCFCFC" },
-    { x: 850, y: 60, s: 4, c: "#3CBCFC" },
-    { x: 1000, y: 90, s: 6, c: "#FCE030" },
-    { x: 1100, y: 50, s: 4, c: "#FCFCFC" },
-    { x: 150, y: 200, s: 4, c: "#9878FC" },
-    { x: 1050, y: 180, s: 4, c: "#FF6E9C" },
-    { x: 50, y: 400, s: 4, c: "#3CBCFC" },
-    { x: 300, y: 500, s: 6, c: "#FCFCFC" },
-    { x: 900, y: 520, s: 4, c: "#FCE030" },
-    { x: 1130, y: 450, s: 6, c: "#9878FC" },
-    { x: 600, y: 560, s: 4, c: "#FCFCFC" },
+    { x: 60, y: 40, s: 4, c: "#FCFCFC" },
+    { x: 180, y: 100, s: 3, c: "#3CBCFC" },
+    { x: 340, y: 60, s: 4, c: "#9878FC" },
+    { x: 520, y: 35, s: 3, c: "#FCFCFC" },
+    { x: 700, y: 80, s: 4, c: "#FCE030" },
+    { x: 880, y: 50, s: 3, c: "#FCFCFC" },
+    { x: 1020, y: 75, s: 4, c: "#3CBCFC" },
+    { x: 1140, y: 40, s: 3, c: "#58D8D8" },
+    { x: 100, y: 180, s: 3, c: "#FF6E9C" },
+    { x: 1080, y: 160, s: 3, c: "#9878FC" },
+    { x: 50, y: 380, s: 3, c: "#3CBCFC" },
+    { x: 250, y: 500, s: 4, c: "#FCFCFC" },
+    { x: 950, y: 520, s: 3, c: "#FCE030" },
+    { x: 1130, y: 430, s: 4, c: "#FCFCFC" },
+    { x: 750, y: 560, s: 3, c: "#9878FC" },
   ];
 
-  // 중앙 sparkle 픽셀 (큰 버전)
-  const P = 12;
-  const cx = 540; // center X offset
-  const cy = 180; // center Y offset
-  const sparkle = [
-    { x: 5, y: 0, c: "#3CBCFC" },
-    { x: 5, y: 1, c: "#58D8D8" },
-    { x: 0, y: 5, c: "#3CBCFC" },
-    { x: 1, y: 5, c: "#58D8D8" },
-    { x: 2, y: 3, c: "#FCFCFC" },
-    { x: 3, y: 3, c: "#FCFCFC" },
-    { x: 4, y: 3, c: "#FCFCFC" },
-    { x: 5, y: 3, c: "#FCFCFC" },
-    { x: 6, y: 3, c: "#FCFCFC" },
-    { x: 7, y: 3, c: "#FCFCFC" },
-    { x: 8, y: 3, c: "#FCFCFC" },
-    { x: 2, y: 4, c: "#FCFCFC" },
-    { x: 3, y: 4, c: "#F8B800" },
-    { x: 4, y: 4, c: "#FCFCFC" },
-    { x: 5, y: 4, c: "#F8B800" },
-    { x: 6, y: 4, c: "#FCFCFC" },
-    { x: 7, y: 4, c: "#F8B800" },
-    { x: 8, y: 4, c: "#FCFCFC" },
-    { x: 2, y: 5, c: "#FCFCFC" },
-    { x: 3, y: 5, c: "#FCFCFC" },
-    { x: 4, y: 5, c: "#F8B800" },
-    { x: 5, y: 5, c: "#FCFCFC" },
-    { x: 6, y: 5, c: "#F8B800" },
-    { x: 7, y: 5, c: "#FCFCFC" },
-    { x: 8, y: 5, c: "#FCFCFC" },
-    { x: 2, y: 6, c: "#FCFCFC" },
-    { x: 3, y: 6, c: "#F8B800" },
-    { x: 4, y: 6, c: "#FCFCFC" },
-    { x: 5, y: 6, c: "#F8B800" },
-    { x: 6, y: 6, c: "#FCFCFC" },
-    { x: 7, y: 6, c: "#F8B800" },
-    { x: 8, y: 6, c: "#FCFCFC" },
-    { x: 2, y: 7, c: "#FCFCFC" },
-    { x: 3, y: 7, c: "#FCFCFC" },
-    { x: 4, y: 7, c: "#FCFCFC" },
-    { x: 5, y: 7, c: "#FCFCFC" },
-    { x: 6, y: 7, c: "#FCFCFC" },
-    { x: 7, y: 7, c: "#FCFCFC" },
-    { x: 8, y: 7, c: "#FCFCFC" },
-    { x: 9, y: 5, c: "#58D8D8" },
-    { x: 10, y: 5, c: "#3CBCFC" },
-    { x: 5, y: 8, c: "#58D8D8" },
-    { x: 5, y: 9, c: "#3CBCFC" },
-    // 장식
-    { x: 1, y: 1, c: "#9878FC" },
-    { x: 9, y: 1, c: "#FF6E9C" },
-    { x: 1, y: 9, c: "#FF6E9C" },
-    { x: 10, y: 9, c: "#9878FC" },
+  // 커서 픽셀아트 (앱 아이콘 반영)
+  const P = 20;
+  const cx = 750;
+  const cy = 260;
+
+  const glow = [
+    { dx: -1, dy: -2, c: "#1A1A2E" },
+    { dx: 0, dy: -2, c: "#1A1A2E" },
+    { dx: 1, dy: -2, c: "#1A1A2E" },
+    { dx: -2, dy: -1, c: "#1A1A2E" },
+    { dx: -1, dy: -1, c: "#2A2A3E" },
+    { dx: 0, dy: -1, c: "#2A2A3E" },
+    { dx: 1, dy: -1, c: "#2A2A3E" },
+    { dx: 2, dy: -1, c: "#1A1A2E" },
   ];
+
+  const cursor = [
+    { dx: -1, dy: 0, c: "#FCFCFC" },
+    { dx: 0, dy: 0, c: "#FCFCFC" },
+    { dx: 1, dy: 0, c: "#FCFCFC" },
+  ];
+
+  const reflect = [
+    { dx: -2, dy: 1, c: "#1A1A2E" },
+    { dx: -1, dy: 1, c: "#2A2A3E" },
+    { dx: 0, dy: 1, c: "#2A2A3E" },
+    { dx: 1, dy: 1, c: "#2A2A3E" },
+    { dx: 2, dy: 1, c: "#1A1A2E" },
+    { dx: -1, dy: 2, c: "#1A1A2E" },
+    { dx: 0, dy: 2, c: "#1A1A2E" },
+    { dx: 1, dy: 2, c: "#1A1A2E" },
+  ];
+
+  const cursorPixels = [...glow, ...cursor, ...reflect];
 
   return new ImageResponse(
     (
@@ -91,9 +76,10 @@ export default function OGImage() {
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
+          fontFamily: "Galmuri14",
         }}
       >
-        {/* 별 */}
+        {/* 별빛 */}
         {stars.map((s, i) => (
           <div
             key={`s${i}`}
@@ -108,14 +94,14 @@ export default function OGImage() {
           />
         ))}
 
-        {/* 중앙 sparkle 픽셀아트 */}
-        {sparkle.map((p, i) => (
+        {/* 커서 픽셀아트 */}
+        {cursorPixels.map((p, i) => (
           <div
-            key={`p${i}`}
+            key={`c${i}`}
             style={{
               position: "absolute",
-              left: cx + p.x * P,
-              top: cy + p.y * P,
+              left: cx + p.dx * P,
+              top: cy + p.dy * P,
               width: P,
               height: P,
               background: p.c,
@@ -123,66 +109,40 @@ export default function OGImage() {
           />
         ))}
 
-        {/* 타이틀 */}
+        {/* 질문 (Galmuri 픽셀 폰트, 아래쪽 배치) */}
         <div
           style={{
             position: "absolute",
-            bottom: 160,
+            bottom: 80,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            gap: "8px",
           }}
         >
           <p
             style={{
-              fontSize: "56px",
-              color: "#FCFCFC",
-              textShadow: "3px 3px 0 rgba(0,0,0,0.6)",
-              margin: 0,
-              lineHeight: 1.3,
-            }}
-          >
-            무용한 기쁨
-          </p>
-        </div>
-
-        {/* 서브타이틀 */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 100,
-            display: "flex",
-          }}
-        >
-          <p
-            style={{
-              fontSize: "22px",
+              fontSize: "44px",
               color: "#58D8D8",
+              textShadow: "2px 2px 0 rgba(0,0,0,0.5)",
               margin: 0,
+              lineHeight: 1.5,
+              textAlign: "center",
             }}
           >
-            나를 기쁘게 하는 아름답지만 무용한 것은?
+            나를 기쁘게 하는
           </p>
-        </div>
-
-        {/* 하단 라벨 */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 40,
-            display: "flex",
-          }}
-        >
           <p
             style={{
-              fontSize: "14px",
-              color: "#4A4A5A",
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
+              fontSize: "44px",
+              color: "#58D8D8",
+              textShadow: "2px 2px 0 rgba(0,0,0,0.5)",
               margin: 0,
+              lineHeight: 1.5,
+              textAlign: "center",
             }}
           >
-            POINTLESS JOY
+            아름답지만 무용한 것은?
           </p>
         </div>
 
@@ -191,12 +151,23 @@ export default function OGImage() {
           style={{
             position: "absolute",
             inset: 0,
-            background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px)",
+            background:
+              "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px)",
             display: "flex",
           }}
         />
       </div>
     ),
-    { ...size }
+    {
+      ...size,
+      fonts: [
+        {
+          name: "Galmuri14",
+          data: fontData,
+          style: "normal",
+          weight: 400,
+        },
+      ],
+    }
   );
 }
