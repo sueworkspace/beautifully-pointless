@@ -13,11 +13,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "무용한 기쁨",
   description:
-    "나를 기쁘게 하는 아름답지만 무용한 것은 무엇인가요?",
+    "나를 기쁘게 하는 아름답지만 무용한 것은?",
   openGraph: {
     title: "무용한 기쁨",
     description:
-      "나를 기쁘게 하는 아름답지만 무용한 것은 무엇인가요?",
+      "나를 기쁘게 하는 아름답지만 무용한 것은?",
     type: "website",
   },
 };

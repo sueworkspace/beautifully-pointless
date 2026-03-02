@@ -105,7 +105,7 @@ export default function IntroPhase({ onEnter }: IntroPhaseProps) {
           <p className="pixel-body" style={{ color: "var(--pixel-gray)" }}>
             나를 기쁘게 하는
             <br />
-            아름답지만 무용한 것은 무엇인가
+            아름답지만 무용한 것은?
           </p>
         </motion.div>
       </div>
