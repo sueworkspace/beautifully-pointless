@@ -1,11 +1,9 @@
 export function getPixelGridConfig(screenWidth: number) {
   const isMobile = screenWidth < 768;
-  return {
-    GRID_W: isMobile ? 50 : 120,
-    GRID_H: isMobile ? 18 : 40,
-    PIXEL_SIZE: isMobile ? Math.max(3, Math.floor((screenWidth * 0.7) / 50)) : 18,
-    isMobile,
-  };
+  const GRID_W = isMobile ? 50 : 120;
+  const GRID_H = isMobile ? 18 : 40;
+  const PIXEL_SIZE = Math.max(3, Math.floor((screenWidth * 0.8) / GRID_W));
+  return { GRID_W, GRID_H, PIXEL_SIZE, isMobile };
 }
 
 export function getOffsetY(h: number, totalH: number, isMobile: boolean) {
