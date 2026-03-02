@@ -218,7 +218,7 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
     const sw = window.innerWidth;
     const sh = window.innerHeight;
     const config = getPixelGridConfig(sw);
-    const threshold = config.isMobile ? 15 : 20;
+    const threshold = 5;
     const charCount = [...currentText].length;
 
     if (charCount > threshold) {
