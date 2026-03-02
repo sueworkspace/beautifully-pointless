@@ -149,15 +149,11 @@ export default function ArchivePhase({
               <motion.button
                 key={card.id}
                 onClick={() => onSelect(card)}
-                className="text-left cursor-pointer hover-flash-border"
+                className="text-left cursor-pointer hover-flash-border archive-card"
                 style={{
                   background: "var(--pixel-bg-alt)",
-                  border: "2px solid var(--pixel-dark-gray)",
                   padding: "14px",
-                  transition: "border-color 0.1s",
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--pixel-blue)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--pixel-dark-gray)"; }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: index * 0.05, duration: 0.1 }}

@@ -84,7 +84,7 @@ export default function IntroPhase({ onEnter }: IntroPhaseProps) {
             className="pixel-title hover-glitch"
             style={{
               color: "var(--pixel-red)",
-              paddingLeft: "48px",
+              paddingLeft: "clamp(16px, 6vw, 48px)",
               display: "inline-block",
               textShadow: "0 0 20px rgba(228, 0, 88, 0.4), 2px 2px 0 rgba(0, 0, 0, 0.6)",
             }}

@@ -384,6 +384,22 @@ body::before {
   }
 }
 
+/* 아카이브 카드 — 터치 친화적 호버 */
+.archive-card {
+  border: 2px solid var(--pixel-dark-gray);
+  transition: border-color 0.1s;
+}
+
+@media (hover: hover) {
+  .archive-card:hover {
+    border-color: var(--pixel-blue);
+  }
+}
+
+.archive-card:active {
+  border-color: var(--pixel-blue);
+}
+
 /* 모바일 viewport height 보정 (키보드 올라올 때) */
 @supports (height: 100dvh) {
   .min-h-screen {

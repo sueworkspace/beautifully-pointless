@@ -17,8 +17,8 @@ export default function ArtPhase({
 }: ArtPhaseProps) {
   return (
     <motion.div
-      className="phase-content min-h-screen flex flex-col justify-end items-center pointer-events-none pb-8 md:pb-12"
-      style={{ padding: "0 20px", paddingBottom: "32px" }}
+      className="phase-content min-h-screen flex flex-col justify-end items-center pointer-events-none"
+      style={{ padding: "0 20px", paddingBottom: "clamp(24px, 4vh, 48px)" }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -36,7 +36,7 @@ export default function ArtPhase({
           style={{
             background: "rgba(15, 15, 35, 0.85)",
             padding: "20px",
-            marginBottom: "40px",
+            marginBottom: "clamp(16px, 4vh, 40px)",
             border: "2px solid rgba(88, 216, 216, 0.3)",
           }}
         >

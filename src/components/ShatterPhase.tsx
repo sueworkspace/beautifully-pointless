@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { hashString, seededRandom } from "@/lib/hash";
+import { getPixelGridConfig, getOffsetY } from "@/lib/pixelGrid";
 
 interface ShatterPhaseProps {
   answer: string;
@@ -158,10 +159,7 @@ export default function ShatterPhase({ answer, onComplete }: ShatterPhaseProps) 
     canvas.style.height = `${h}px`;
     ctx.scale(dpr, dpr);
 
-    const isMobile = w < 768;
-    const PIXEL_SIZE = isMobile ? 12 : 18;
-    const GRID_W = isMobile ? 80 : 120;
-    const GRID_H = isMobile ? 30 : 40;
+    const { GRID_W, GRID_H, PIXEL_SIZE, isMobile } = getPixelGridConfig(w);
 
     // 텍스트 → 픽셀
     const rawPixels = textToPixels(answer, GRID_W, GRID_H);
@@ -171,7 +169,7 @@ export default function ShatterPhase({ answer, onComplete }: ShatterPhaseProps) 
     const totalW = GRID_W * PIXEL_SIZE;
     const totalH = GRID_H * PIXEL_SIZE;
     const offsetX = Math.floor((w - totalW) / 2);
-    const offsetY = Math.floor((h - totalH) / 2) - 30;
+    const offsetY = getOffsetY(h, totalH, isMobile);
 
     // 파티클 생성
     const particles: Particle[] = rawPixels.map((p) => {
