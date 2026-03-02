@@ -88,16 +88,19 @@ export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
               placeholder="당신의 답을 적어주세요..."
               rows={3}
               maxLength={500}
-              className="w-full resize-none outline-none"
+              className="resize-none outline-none pixel-textarea"
               style={{
+                width: "98%",
+                margin: "0 auto",
+                display: "block",
                 fontFamily: "var(--font-pixel)",
                 fontSize: "16px",
                 lineHeight: 1.8,
                 color: "var(--pixel-white)",
                 background: "var(--pixel-bg)",
                 border: focused
-                  ? "2px solid var(--pixel-blue)"
-                  : "2px solid var(--pixel-dark-gray)",
+                  ? "1px solid var(--pixel-blue)"
+                  : "1px solid var(--pixel-dark-gray)",
                 caretColor: "var(--pixel-green)",
                 padding: "12px",
                 imageRendering: "auto",
@@ -106,7 +109,7 @@ export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
             />
 
             {/* 닉네임 입력 */}
-            <div style={{ display: "flex", gap: "8px", marginTop: "12px", alignItems: "stretch" }}>
+            <div className="flex gap-2 mt-3 items-stretch flex-col min-[481px]:flex-row" style={{ width: "98%", margin: "0 auto" }}>
               <input
                 type="text"
                 value={nickname}
@@ -115,7 +118,7 @@ export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
                 onBlur={() => setNicknameFocused(false)}
                 placeholder="닉네임을 입력하세요"
                 maxLength={20}
-                className="outline-none"
+                className="outline-none pixel-input"
                 style={{
                   flex: 1,
                   fontFamily: "var(--font-pixel)",
@@ -124,8 +127,8 @@ export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
                   color: "var(--pixel-white)",
                   background: "var(--pixel-bg)",
                   border: nicknameFocused
-                    ? "2px solid var(--pixel-blue)"
-                    : "2px solid var(--pixel-dark-gray)",
+                    ? "1px solid var(--pixel-blue)"
+                    : "1px solid var(--pixel-dark-gray)",
                   caretColor: "var(--pixel-green)",
                   padding: "10px 12px",
                   imageRendering: "auto",
@@ -143,7 +146,7 @@ export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
                 }}
                 title="랜덤 닉네임 생성"
               >
-                랜덤
+                닉네임 랜덤
               </button>
             </div>
 

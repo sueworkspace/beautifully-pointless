@@ -33,7 +33,12 @@ export default function ArtPhase({
         {/* 시적 텍스트 */}
         <div
           className="pixel-frame"
-          style={{ background: "rgba(15, 15, 35, 0.85)", padding: "20px", marginBottom: "40px" }}
+          style={{
+            background: "rgba(15, 15, 35, 0.85)",
+            padding: "20px",
+            marginBottom: "40px",
+            border: "2px solid rgba(88, 216, 216, 0.3)",
+          }}
         >
           <p
             className="pixel-body"
@@ -61,8 +66,8 @@ export default function ArtPhase({
         </div>
 
         {/* 버튼 */}
-        <div className="flex gap-3 md:gap-4 items-center justify-center flex-wrap">
-          <button onClick={onNewWrite} className="pixel-btn">
+        <div className="flex gap-2 md:gap-4 items-center justify-center flex-col min-[481px]:flex-row">
+          <button onClick={onNewWrite} className="pixel-btn" style={{ minWidth: "120px" }}>
             다시 쓰기
           </button>
           <span
@@ -75,7 +80,7 @@ export default function ArtPhase({
           >
             &gt;&gt;&gt;
           </span>
-          <button onClick={onArchive} className="pixel-btn">
+          <button onClick={onArchive} className="pixel-btn" style={{ minWidth: "120px" }}>
             아카이브
           </button>
         </div>

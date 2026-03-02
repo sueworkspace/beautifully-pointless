@@ -154,8 +154,10 @@ export default function ArchivePhase({
                   background: "var(--pixel-bg-alt)",
                   border: "2px solid var(--pixel-dark-gray)",
                   padding: "14px",
-                  transition: "none",
+                  transition: "border-color 0.1s",
                 }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--pixel-blue)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--pixel-dark-gray)"; }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: index * 0.05, duration: 0.1 }}
@@ -186,6 +188,15 @@ export default function ArchivePhase({
                 >
                   {card.answer}
                 </p>
+
+                {/* 구분선 */}
+                <div
+                  style={{
+                    borderTop: "1px solid var(--pixel-dark-gray)",
+                    marginBottom: "8px",
+                    opacity: 0.5,
+                  }}
+                />
 
                 {/* 생성 텍스트 미리보기 */}
                 <p
@@ -219,8 +230,8 @@ export default function ArchivePhase({
                       tabIndex={0}
                       onClick={(e) => handleDelete(e, card.id)}
                       onKeyDown={(e) => { if (e.key === "Enter") handleDelete(e as unknown as React.MouseEvent, card.id); }}
-                      className="pixel-label"
-                      style={{ color: "var(--pixel-dark-gray)", cursor: "pointer", fontSize: "11px" }}
+                      className="pixel-label p-1"
+                      style={{ color: "var(--pixel-dark-gray)", cursor: "pointer", fontSize: "13px" }}
                     >
                       X
                     </span>

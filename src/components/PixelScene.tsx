@@ -169,10 +169,10 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
   // 픽셀 블록 크기 & 그리드 설정 (모바일 대응)
   const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
   const isMobile = screenWidth < 768;
-  const GRID_W = isMobile ? 60 : 120;
-  const GRID_H = isMobile ? 24 : 40;
+  const GRID_W = isMobile ? 50 : 120;
+  const GRID_H = isMobile ? 18 : 40;
   const PIXEL_SIZE = isMobile
-    ? Math.max(4, Math.floor((screenWidth * 0.9) / GRID_W))
+    ? Math.max(3, Math.floor((screenWidth * 0.7) / GRID_W))
     : 18;
   const FRAME_SKIP = 6; // ~10fps at 60fps RAF
 
@@ -260,7 +260,7 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
         }
 
         // shimmer 효과
-        if (revealRowRef.current >= GRID_H && frame % 8 === 0) {
+        if (revealRowRef.current >= GRID_H && frame % 16 === 0) {
           // 이전 shimmer 타이머 체크
           for (const [idx, endFrame] of shimmerTimerRef.current) {
             if (frame >= endFrame) {
@@ -269,7 +269,7 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
             }
           }
           // 새 shimmer 추가
-          const count = 2 + Math.floor(Math.random() * 3);
+          const count = 1 + Math.floor(Math.random() * 2);
           for (let i = 0; i < count; i++) {
             const idx = Math.floor(Math.random() * pixels.length);
             shimmerRef.current.add(idx);
