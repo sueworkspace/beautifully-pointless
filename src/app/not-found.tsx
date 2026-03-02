@@ -77,7 +77,7 @@ export default function NotFound() {
       </p>
 
       {/* 돌아가기 버튼 */}
-      <div style={{ paddingTop: "80px", paddingBottom: "80px" }}>
+      <div style={{ paddingTop: "16px", paddingBottom: "16px" }}>
         <a
           href="/"
           className="pixel-btn hover-flash-text"
