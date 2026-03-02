@@ -143,6 +143,7 @@ export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
                   fontSize: "12px",
                   padding: "8px 12px",
                   whiteSpace: "nowrap",
+                  width: "100px",
                 }}
                 title="랜덤 닉네임 생성"
               >
