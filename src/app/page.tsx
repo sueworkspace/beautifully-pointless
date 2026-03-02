@@ -11,6 +11,7 @@ import ArchivePhase from "@/components/ArchivePhase";
 import PixelModal from "@/components/PixelModal";
 import AdminPasswordModal from "@/components/AdminPasswordModal";
 import { useTranslation } from "@/lib/i18n/context";
+import { trackEvent } from "@/lib/analytics";
 
 /* ===================================
    State Machine
@@ -55,6 +56,7 @@ function reducer(state: AppState, action: AppAction): AppState {
         answer: action.answer,
         nickname: action.nickname,
         generatedText: action.generatedText,
+        cardId: action.id,
         selectedArchiveId: action.id,
       };
     case "GO_INTRO":
@@ -91,6 +93,7 @@ export default function Home() {
 
   const handleSubmit = useCallback(async (answer: string, nickname: string) => {
     dispatch({ type: "START_LOADING", answer, nickname });
+    trackEvent("answer_submit");
 
     try {
       const res = await fetch("/api/generate", {
@@ -135,6 +138,7 @@ export default function Home() {
   }, []);
 
   const handleGoArchive = useCallback(() => {
+    trackEvent("archive_view");
     dispatch({ type: "GO_ARCHIVE" });
   }, []);
 
@@ -211,6 +215,7 @@ export default function Home() {
             answer={state.answer}
             generatedText={state.generatedText}
             nickname={state.nickname}
+            cardId={state.cardId}
             onNewWrite={handleNewWrite}
             onArchive={handleGoArchive}
           />

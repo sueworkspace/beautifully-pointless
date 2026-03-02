@@ -59,6 +59,21 @@ export const dictionaries = {
     shareTitle: "무용한 기쁨",
     shareText: "나를 기쁘게 하는 아름답지만 무용한 것",
     downloadFileName: "pointless-joy",
+
+    /* ArtPhase — 링크 복사 */
+    linkCopy: "링크 복사",
+    linkCopied: "복사 완료!",
+
+    /* QuestionPhase — 동의 안내 */
+    consentPrefix: "제출 시 ",
+    termsOfService: "이용약관",
+    consentAnd: " 및 ",
+    privacyPolicy: "개인정보처리방침",
+    consentSuffix: "에 동의합니다.",
+
+    /* Card 랜딩 페이지 */
+    cardCta: "나도 써보기 >",
+    cardQuestion: "나를 기쁘게 하는 아름답지만 무용한 것은?",
   },
   en: {
     appTitle: "Pointless Joy",
@@ -110,6 +125,18 @@ export const dictionaries = {
     shareTitle: "Pointless Joy",
     shareText: "The beautiful but useless thing that brings me joy",
     downloadFileName: "pointless-joy",
+
+    linkCopy: "Copy Link",
+    linkCopied: "Copied!",
+
+    consentPrefix: "By submitting, you agree to our ",
+    termsOfService: "Terms of Service",
+    consentAnd: " and ",
+    privacyPolicy: "Privacy Policy",
+    consentSuffix: ".",
+
+    cardCta: "Try It Yourself >",
+    cardQuestion: "What is the beautiful but useless thing that brings me joy?",
   },
 };
 

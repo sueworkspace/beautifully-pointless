@@ -180,6 +180,28 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
               >
                 {t.submit}
               </button>
+
+              {/* 동의 안내 */}
+              <p
+                className="pixel-label"
+                style={{
+                  color: "var(--pixel-dark-gray)",
+                  marginTop: "12px",
+                  fontSize: "10px",
+                  letterSpacing: "0.05em",
+                  textTransform: "none",
+                }}
+              >
+                {t.consentPrefix}
+                <a href="/terms" target="_blank" style={{ color: "var(--pixel-blue)", textDecoration: "underline" }}>
+                  {t.termsOfService}
+                </a>
+                {t.consentAnd}
+                <a href="/privacy" target="_blank" style={{ color: "var(--pixel-blue)", textDecoration: "underline" }}>
+                  {t.privacyPolicy}
+                </a>
+                {t.consentSuffix}
+              </p>
             </motion.div>
           </motion.div>
         </div>

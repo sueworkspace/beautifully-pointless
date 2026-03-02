@@ -1,14 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "@/lib/i18n/context";
 import { shareArt } from "@/lib/share";
+import { trackEvent } from "@/lib/analytics";
 
 interface ArtPhaseProps {
   answer: string;
   generatedText: string;
   nickname: string;
+  cardId: string | null;
   onNewWrite: () => void;
   onArchive: () => void;
 }
@@ -17,12 +19,15 @@ export default function ArtPhase({
   answer,
   generatedText,
   nickname,
+  cardId,
   onNewWrite,
   onArchive,
 }: ArtPhaseProps) {
   const { t } = useTranslation();
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const handleShare = useCallback(async () => {
+    trackEvent("share_click");
     await shareArt({
       answer,
       generatedText,
@@ -32,6 +37,19 @@ export default function ArtPhase({
       fileName: t.downloadFileName,
     });
   }, [answer, generatedText, nickname, t]);
+
+  const handleLinkCopy = useCallback(async () => {
+    if (!cardId) return;
+    const url = `${window.location.origin}/card/${cardId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setLinkCopied(true);
+      trackEvent("link_copy", { card_id: cardId });
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      // 클립보드 API 미지원 시 무시
+    }
+  }, [cardId]);
 
   return (
     <motion.div
@@ -103,6 +121,11 @@ export default function ArtPhase({
           <button onClick={handleShare} className="pixel-btn" style={{ minWidth: "120px" }}>
             {t.share}
           </button>
+          {cardId && (
+            <button onClick={handleLinkCopy} className="pixel-btn" style={{ minWidth: "120px" }}>
+              {linkCopied ? t.linkCopied : t.linkCopy}
+            </button>
+          )}
           <button onClick={onArchive} className="pixel-btn" style={{ minWidth: "120px" }}>
             {t.archive}
           </button>

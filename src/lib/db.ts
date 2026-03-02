@@ -75,6 +75,25 @@ export async function adminDeleteAllCards() {
 }
 
 /**
+ * 카드 단건 조회
+ */
+export async function getCardById(id: string): Promise<CardData | null> {
+  const { rows } = await sql`
+    SELECT id, nickname, answer, generated_text, created_at
+    FROM cards WHERE id = ${id} LIMIT 1
+  `;
+  if (rows.length === 0) return null;
+  const r = rows[0];
+  return {
+    id: r.id,
+    nickname: r.nickname,
+    answer: r.answer,
+    generatedText: r.generated_text,
+    createdAt: r.created_at,
+  };
+}
+
+/**
  * 전체 카드 수 조회
  */
 export async function getCardCount(): Promise<number> {
