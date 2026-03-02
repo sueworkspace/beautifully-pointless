@@ -9,4 +9,5 @@ title: Home
 
 ## Retrospectives
 
+- [2026.03.03 — SNS 공유, 관리자 모드, 앱 아이콘, i18n](retrospectives/2026-03-03.md)
 - [2026.03.02 — UI/UX 디자인 전면 개선](retrospectives/2026-03-02.md)
