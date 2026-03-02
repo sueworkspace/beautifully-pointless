@@ -145,7 +145,7 @@ export default function Home() {
       {/* Phase UI */}
       <AnimatePresence mode="wait">
         {state.phase === "question" && (
-          <QuestionPhase key="question" onSubmit={handleSubmit} />
+          <QuestionPhase key="question" onSubmit={handleSubmit} onArchive={handleGoArchive} />
         )}
 
         {state.phase === "loading" && (

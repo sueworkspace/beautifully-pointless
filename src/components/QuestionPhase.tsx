@@ -6,9 +6,10 @@ import { generateNickname } from "@/lib/nickname";
 
 interface QuestionPhaseProps {
   onSubmit: (answer: string, nickname: string) => void;
+  onArchive: () => void;
 }
 
-export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
+export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProps) {
   const [nickname, setNickname] = useState("");
   const [answer, setAnswer] = useState("");
   const [focused, setFocused] = useState(false);
@@ -54,6 +55,23 @@ export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15, ease: "linear" }}
     >
+      {/* 우측 상단 아카이브 버튼 */}
+      <button
+        onClick={onArchive}
+        className="pixel-btn hover-flash-text"
+        style={{
+          position: "fixed",
+          top: "16px",
+          right: "16px",
+          fontSize: "11px",
+          padding: "6px 12px",
+          zIndex: 10,
+          minHeight: "auto",
+        }}
+      >
+        ARCHIVE
+      </button>
+
       <div className="w-full max-w-[520px]">
         {/* NES 다이얼로그 프레임 */}
         <div className="pixel-frame p-5 md:p-10">
