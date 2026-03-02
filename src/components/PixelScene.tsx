@@ -204,42 +204,43 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
   const { GRID_W, GRID_H, PIXEL_SIZE, isMobile } = getPixelGridConfig(screenWidth);
   const FRAME_SKIP = 6; // ~10fps at 60fps RAF
 
-  // 긴 텍스트 임계값
-  const TEXT_THRESHOLD = isMobile ? 15 : 20;
-
+  // 호출 시점에 항상 최신 window 기반으로 config를 읽는 함수
   const buildTextPixels = useCallback(() => {
-    if (!textRef.current) {
+    const currentText = textRef.current;
+    if (!currentText) {
       textPixelsRef.current = [];
       styledTextLinesRef.current = [];
       renderModeRef.current = "pixel";
       return;
     }
 
-    const charCount = [...textRef.current].length;
+    // 호출 시점의 실제 화면 크기 기반으로 계산
+    const sw = window.innerWidth;
+    const sh = window.innerHeight;
+    const config = getPixelGridConfig(sw);
+    const threshold = config.isMobile ? 15 : 20;
+    const charCount = [...currentText].length;
 
-    if (charCount > TEXT_THRESHOLD) {
+    if (charCount > threshold) {
       // 긴 텍스트 → 텍스트 모드
       renderModeRef.current = "text";
       textPixelsRef.current = [];
 
-      // 화면 높이의 상단 영역에 맞도록 동적 폰트 크기 결정
-      const sw = typeof window !== "undefined" ? window.innerWidth : 375;
-      const sh = typeof window !== "undefined" ? window.innerHeight : 667;
-      const maxWidth = isMobile ? sw * 0.8 : Math.min(sw * 0.6, 700);
-      const availableH = sh * (isMobile ? 0.45 : 0.55);
+      const maxWidth = config.isMobile ? sw * 0.8 : Math.min(sw * 0.6, 700);
+      const availableH = sh * (config.isMobile ? 0.45 : 0.55);
 
       const tempCanvas = document.createElement("canvas");
       const tempCtx = tempCanvas.getContext("2d")!;
 
       // 큰 폰트부터 시도, 화면에 맞을 때까지 축소
-      const maxFont = isMobile ? 22 : 32;
-      const minFont = isMobile ? 12 : 14;
+      const maxFont = config.isMobile ? 22 : 32;
+      const minFont = config.isMobile ? 12 : 14;
       let bestSize = maxFont;
       let bestLines: string[] = [];
 
       for (let fs = maxFont; fs >= minFont; fs -= 2) {
         tempCtx.font = `${fs}px Galmuri14, monospace`;
-        const lines = wrapCanvasText(tempCtx, textRef.current, maxWidth);
+        const lines = wrapCanvasText(tempCtx, currentText, maxWidth);
         const lineH = fs * 1.8;
         const totalH = lines.length * lineH;
         if (totalH <= availableH) {
@@ -262,20 +263,20 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
       renderModeRef.current = "pixel";
       styledTextLinesRef.current = [];
 
-      const pixels = textToPixels(textRef.current, GRID_W, GRID_H);
-      const seed = hashString(textRef.current);
+      const pixels = textToPixels(currentText, config.GRID_W, config.GRID_H);
+      const seed = hashString(currentText);
       const rng = seededRandom(seed);
 
       textPixelsRef.current = pixels.map((p) => ({
         ...p,
-        color: getPixelColor(p.x, p.y, GRID_W, GRID_H, rng),
+        color: getPixelColor(p.x, p.y, config.GRID_W, config.GRID_H, rng),
       }));
     }
 
     revealRowRef.current = 0;
     shimmerRef.current.clear();
     shimmerTimerRef.current.clear();
-  }, [GRID_W, GRID_H, TEXT_THRESHOLD, isMobile]);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
