@@ -60,6 +60,21 @@ export async function deleteCard(id: string, token: string) {
 }
 
 /**
+ * 관리자 카드 삭제 (토큰 불필요)
+ */
+export async function adminDeleteCard(id: string) {
+  const result = await sql`DELETE FROM cards WHERE id = ${id}`;
+  return (result.rowCount ?? 0) > 0;
+}
+
+/**
+ * 관리자 전체 카드 삭제
+ */
+export async function adminDeleteAllCards() {
+  await sql`DELETE FROM cards`;
+}
+
+/**
  * 전체 카드 수 조회
  */
 export async function getCardCount(): Promise<number> {

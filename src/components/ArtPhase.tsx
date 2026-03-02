@@ -1,8 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useCallback } from "react";
+import { useTranslation } from "@/lib/i18n/context";
+import { shareArt } from "@/lib/share";
 
 interface ArtPhaseProps {
+  answer: string;
   generatedText: string;
   nickname: string;
   onNewWrite: () => void;
@@ -10,19 +14,33 @@ interface ArtPhaseProps {
 }
 
 export default function ArtPhase({
+  answer,
   generatedText,
   nickname,
   onNewWrite,
   onArchive,
 }: ArtPhaseProps) {
+  const { t } = useTranslation();
+
+  const handleShare = useCallback(async () => {
+    await shareArt({
+      answer,
+      generatedText,
+      nickname,
+      title: t.shareTitle,
+      shareText: t.shareText,
+      fileName: t.downloadFileName,
+    });
+  }, [answer, generatedText, nickname, t]);
+
   return (
     <motion.div
       className="phase-content min-h-screen flex flex-col justify-end items-center pointer-events-none"
       style={{ padding: "0 20px", paddingBottom: "clamp(24px, 4vh, 48px)" }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.15, ease: "linear" }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <motion.div
         className="text-center pointer-events-auto w-full max-w-[420px]"
@@ -73,27 +91,20 @@ export default function ArtPhase({
               fontSize: "10px",
             }}
           >
-            사용자가 입력한 답변을 바탕으로 AI가 작성한 문구입니다.
+            {t.aiDisclaimer}
           </p>
         </div>
 
         {/* 버튼 */}
         <div className="flex gap-2 md:gap-4 items-center justify-center flex-col min-[481px]:flex-row">
           <button onClick={onNewWrite} className="pixel-btn" style={{ minWidth: "120px" }}>
-            다시 쓰기
+            {t.rewrite}
           </button>
-          <span
-            className="hidden md:inline"
-            style={{
-              color: "var(--pixel-dark-gray)",
-              fontFamily: "var(--font-pixel)",
-              fontSize: "12px",
-            }}
-          >
-            &gt;&gt;&gt;
-          </span>
+          <button onClick={handleShare} className="pixel-btn" style={{ minWidth: "120px" }}>
+            {t.share}
+          </button>
           <button onClick={onArchive} className="pixel-btn" style={{ minWidth: "120px" }}>
-            아카이브
+            {t.archive}
           </button>
         </div>
       </motion.div>

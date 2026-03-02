@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { CardData } from "@/types";
+import { useTranslation } from "@/lib/i18n/context";
 
 /* 깜빡이는 커서 */
 function BlinkCursor() {
@@ -21,6 +22,7 @@ function BlinkCursor() {
 
 export default function NotFound() {
   const [card, setCard] = useState<CardData | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetch("/api/cards?mode=random")
@@ -41,12 +43,11 @@ export default function NotFound() {
       {/* 404 ASCII 아트 */}
       <div className="mb-6" style={{ textAlign: "center" }}>
         <pre
+          className="pixel-title"
           style={{
-            fontFamily: "var(--font-pixel-lg)",
             fontSize: "clamp(28px, 8vw, 64px)",
             color: "var(--pixel-red)",
             lineHeight: 1.1,
-            textShadow: "3px 3px 0 rgba(0, 0, 0, 0.6)",
             letterSpacing: "0.1em",
           }}
         >
@@ -59,20 +60,20 @@ export default function NotFound() {
         className="pixel-body mb-2"
         style={{ color: "var(--pixel-gray)", textAlign: "center" }}
       >
-        PAGE NOT FOUND
+        {t.pageNotFound}
       </p>
       <p
+        className="pixel-body"
         style={{
-          fontFamily: "var(--font-pixel)",
           fontSize: "13px",
           color: "var(--pixel-dark-gray)",
           textAlign: "center",
           lineHeight: 1.8,
         }}
       >
-        이 페이지는 무용하지도 않습니다.
+        {t.notFoundMsg1}
         <br />
-        존재하지 않으니까요.
+        {t.notFoundMsg2}
         <BlinkCursor />
       </p>
 
@@ -83,7 +84,7 @@ export default function NotFound() {
           className="pixel-btn hover-flash-text"
           style={{ textDecoration: "none" }}
         >
-          &lt; 돌아가기
+          {t.notFoundBack}
         </a>
       </div>
 
@@ -96,7 +97,7 @@ export default function NotFound() {
             className="pixel-label mb-4"
             style={{ color: "var(--pixel-dark-gray)", textAlign: "center" }}
           >
-            대신, 누군가의 무용한 기록
+            {t.notFoundLabel}
           </p>
 
           <a
@@ -111,8 +112,8 @@ export default function NotFound() {
           >
             {/* 답변 */}
             <p
+              className="pixel-body"
               style={{
-                fontFamily: "var(--font-pixel)",
                 fontSize: "13px",
                 color: "var(--pixel-white)",
                 lineHeight: 1.7,
@@ -133,8 +134,8 @@ export default function NotFound() {
 
             {/* 생성 텍스트 */}
             <p
+              className="pixel-body"
               style={{
-                fontFamily: "var(--font-pixel)",
                 fontSize: "11px",
                 color: "var(--pixel-gray)",
                 lineHeight: 1.8,

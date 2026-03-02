@@ -3,11 +3,15 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { CardData } from "@/types";
+import { useTranslation } from "@/lib/i18n/context";
+import PixelModal from "@/components/PixelModal";
 
 interface ArchivePhaseProps {
   onSelect: (card: CardData) => void;
   onBack: () => void;
   onNewWrite: () => void;
+  isAdmin?: boolean;
+  adminPassword?: string;
 }
 
 /* 텍스트 기반 로딩 스피너 */
@@ -37,102 +41,19 @@ function PixelSpinner() {
   );
 }
 
-/* NES 스타일 삭제 확인 팝업 */
-function ConfirmDialog({
-  onConfirm,
-  onCancel,
-}: {
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <motion.div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 100,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(15, 15, 35, 0.8)",
-      }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.1 }}
-      onClick={onCancel}
-    >
-      <motion.div
-        className="pixel-frame"
-        style={{
-          background: "var(--pixel-bg-alt)",
-          padding: "24px 28px",
-          maxWidth: "300px",
-          width: "calc(100% - 40px)",
-          textAlign: "center",
-        }}
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        transition={{ duration: 0.1 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <p
-          className="pixel-body"
-          style={{
-            color: "var(--pixel-white)",
-            marginBottom: "8px",
-            fontSize: "14px",
-          }}
-        >
-          정말 삭제하시겠습니까?
-        </p>
-        <p
-          className="pixel-label"
-          style={{
-            color: "var(--pixel-dark-gray)",
-            marginBottom: "24px",
-          }}
-        >
-          삭제된 기록은 복구할 수 없습니다.
-        </p>
-        <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-          <button
-            onClick={onCancel}
-            className="pixel-btn"
-            style={{ fontSize: "12px", padding: "8px 16px", minWidth: "80px" }}
-          >
-            취소
-          </button>
-          <button
-            onClick={onConfirm}
-            className="pixel-btn"
-            style={{
-              fontSize: "12px",
-              padding: "8px 16px",
-              minWidth: "80px",
-              background: "var(--pixel-red)",
-              borderColor: "var(--pixel-red)",
-              color: "var(--pixel-white)",
-            }}
-          >
-            삭제
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
 export default function ArchivePhase({
   onSelect,
   onBack,
   onNewWrite,
+  isAdmin = false,
+  adminPassword = "",
 }: ArchivePhaseProps) {
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [ownedTokens, setOwnedTokens] = useState<Record<string, string>>({});
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [showDeleteAll, setShowDeleteAll] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     try {
@@ -145,28 +66,54 @@ export default function ArchivePhase({
 
   const handleDeleteClick = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (!ownedTokens[id]) return;
+    // 관리자이거나 본인 토큰이 있는 경우만
+    if (!isAdmin && !ownedTokens[id]) return;
     setDeleteTargetId(id);
   };
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deleteTargetId) return;
-    const token = ownedTokens[deleteTargetId];
-    if (!token) return;
+
     try {
-      const res = await fetch(`/api/cards?id=${deleteTargetId}&token=${encodeURIComponent(token)}`, { method: "DELETE" });
+      let res: Response;
+      if (isAdmin) {
+        // 관리자 삭제 — 토큰 불필요
+        res = await fetch(`/api/cards?id=${deleteTargetId}&adminPassword=${encodeURIComponent(adminPassword)}`, { method: "DELETE" });
+      } else {
+        const token = ownedTokens[deleteTargetId];
+        if (!token) return;
+        res = await fetch(`/api/cards?id=${deleteTargetId}&token=${encodeURIComponent(token)}`, { method: "DELETE" });
+      }
+
       if (res.ok) {
         setCards((prev) => prev.filter((c) => c.id !== deleteTargetId));
-        const updated = { ...ownedTokens };
-        delete updated[deleteTargetId];
-        setOwnedTokens(updated);
-        localStorage.setItem("deleteTokens", JSON.stringify(updated));
+        if (ownedTokens[deleteTargetId]) {
+          const updated = { ...ownedTokens };
+          delete updated[deleteTargetId];
+          setOwnedTokens(updated);
+          localStorage.setItem("deleteTokens", JSON.stringify(updated));
+        }
       }
     } catch {
       // ignore
     }
     setDeleteTargetId(null);
-  }, [deleteTargetId, ownedTokens]);
+  }, [deleteTargetId, ownedTokens, isAdmin, adminPassword]);
+
+  // 전체 삭제 (관리자 전용)
+  const handleDeleteAllConfirm = useCallback(async () => {
+    setShowDeleteAll(false);
+    try {
+      const res = await fetch(`/api/cards?all=true&adminPassword=${encodeURIComponent(adminPassword)}`, { method: "DELETE" });
+      if (res.ok) {
+        setCards([]);
+        setOwnedTokens({});
+        localStorage.setItem("deleteTokens", "{}");
+      }
+    } catch {
+      // ignore
+    }
+  }, [adminPassword]);
 
   useEffect(() => {
     fetch("/api/cards")
@@ -182,22 +129,37 @@ export default function ArchivePhase({
     <motion.div
       className="phase-content min-h-screen pb-8"
       style={{ paddingLeft: "20px", paddingRight: "20px", paddingBottom: "32px", background: "var(--pixel-bg)" }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.15, ease: "linear" }}
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -40 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
     >
       {/* 헤더 */}
       <div className="pt-6 md:pt-8 pb-4 flex justify-between items-center">
-        <span className="pixel-label" style={{ color: "var(--pixel-dark-gray)" }}>
-          03 / ARCHIVE
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="pixel-label" style={{ color: "var(--pixel-dark-gray)" }}>
+            {t.archiveLabel}
+          </span>
+          {isAdmin && (
+            <span
+              className="pixel-label"
+              style={{
+                color: "var(--pixel-gold)",
+                fontSize: "10px",
+                border: "1px solid var(--pixel-gold)",
+                padding: "2px 6px",
+              }}
+            >
+              ADMIN
+            </span>
+          )}
+        </div>
         <button
           onClick={onBack}
           className="pixel-btn"
           style={{ fontSize: "11px", padding: "4px 12px" }}
         >
-          &lt; 돌아가기
+          {t.goBack}
         </button>
       </div>
 
@@ -212,13 +174,31 @@ export default function ArchivePhase({
         transition={{ duration: 0.15, delay: 0.1 }}
       >
         <h2 className="pixel-heading">
-          무용한 것들의
+          {t.archiveTitle1}
           <br />
-          <span style={{ color: "var(--pixel-red)" }}>아카이브</span>
+          <span style={{ color: "var(--pixel-red)" }}>{t.archiveTitle2}</span>
         </h2>
-        <p className="pixel-label mt-3 md:mt-4" style={{ color: "var(--pixel-dark-gray)" }}>
-          {cards.length} RECORDS
-        </p>
+        <div className="flex items-center gap-4 mt-3 md:mt-4">
+          <p className="pixel-label" style={{ color: "var(--pixel-dark-gray)" }}>
+            {t.records(cards.length)}
+          </p>
+          {isAdmin && cards.length > 0 && (
+            <button
+              onClick={() => setShowDeleteAll(true)}
+              className="pixel-btn"
+              style={{
+                fontSize: "10px",
+                padding: "4px 10px",
+                minHeight: "auto",
+                background: "var(--pixel-red)",
+                borderColor: "var(--pixel-red)",
+                color: "var(--pixel-white)",
+              }}
+            >
+              전체 삭제
+            </button>
+          )}
+        </div>
       </motion.div>
 
       {/* 카드 리스트 */}
@@ -234,10 +214,10 @@ export default function ArchivePhase({
           transition={{ delay: 0.15 }}
         >
           <p className="pixel-body mb-2" style={{ color: "var(--pixel-gray)" }}>
-            아직 기록이 없습니다.
+            {t.noRecords}
           </p>
           <p className="pixel-body mb-8" style={{ color: "var(--pixel-dark-gray)" }}>
-            첫 번째 답을 적어보세요.
+            {t.noRecordsHint}
           </p>
           <button
             onClick={onNewWrite}
@@ -248,7 +228,7 @@ export default function ArchivePhase({
               color: "var(--pixel-white)",
             }}
           >
-            첫 기록 남기기 &gt;
+            {t.firstRecord}
           </button>
         </motion.div>
       ) : (
@@ -329,16 +309,16 @@ export default function ArchivePhase({
                   )}
                   <div className="flex items-center gap-3">
                     <span className="pixel-label hover-flash-text" style={{ color: "var(--pixel-blue)" }}>
-                      보기 &gt;
+                      {t.view}
                     </span>
-                    {ownedTokens[card.id] && (
+                    {(isAdmin || ownedTokens[card.id]) && (
                       <span
                         role="button"
                         tabIndex={0}
                         onClick={(e) => handleDeleteClick(e, card.id)}
                         onKeyDown={(e) => { if (e.key === "Enter") handleDeleteClick(e as unknown as React.MouseEvent, card.id); }}
                         className="pixel-label p-1"
-                        style={{ color: "var(--pixel-dark-gray)", cursor: "pointer", fontSize: "13px" }}
+                        style={{ color: isAdmin ? "var(--pixel-red)" : "var(--pixel-dark-gray)", cursor: "pointer", fontSize: "13px" }}
                       >
                         X
                       </span>
@@ -360,21 +340,34 @@ export default function ArchivePhase({
             transition={{ delay: 0.3 }}
           >
             <button onClick={onNewWrite} className="pixel-btn hover-flash-text">
-              + 새로 쓰기
+              {t.newWrite}
             </button>
           </motion.div>
         </>
       )}
 
-      {/* 삭제 확인 팝업 */}
-      <AnimatePresence>
-        {deleteTargetId && (
-          <ConfirmDialog
-            onConfirm={handleDeleteConfirm}
-            onCancel={() => setDeleteTargetId(null)}
-          />
-        )}
-      </AnimatePresence>
+      {/* 개별 삭제 확인 모달 */}
+      <PixelModal
+        open={!!deleteTargetId}
+        message={t.deleteConfirm}
+        confirmLabel={t.delete}
+        cancelLabel={t.cancel}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTargetId(null)}
+        variant="confirm"
+      />
+
+      {/* 전체 삭제 확인 모달 (관리자) */}
+      <PixelModal
+        open={showDeleteAll}
+        title="ADMIN"
+        message={`전체 ${cards.length}개의 기록을 삭제합니다.`}
+        confirmLabel="전체 삭제"
+        cancelLabel={t.cancel}
+        onConfirm={handleDeleteAllConfirm}
+        onCancel={() => setShowDeleteAll(false)}
+        variant="confirm"
+      />
     </motion.div>
   );
 }

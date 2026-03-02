@@ -1,5 +1,5 @@
 /* Phase 타입 */
-export type Phase = "intro" | "question" | "loading" | "art" | "archive";
+export type Phase = "question" | "loading" | "art" | "archive";
 
 /* 앱 상태 */
 export interface AppState {

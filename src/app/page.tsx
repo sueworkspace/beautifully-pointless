@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer, useCallback } from "react";
+import { useReducer, useCallback, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import type { AppState, AppAction, CardData } from "@/types";
 import PixelScene, { type SceneMode } from "@/components/PixelScene";
@@ -8,6 +8,9 @@ import QuestionPhase from "@/components/QuestionPhase";
 import LoadingPhase from "@/components/LoadingPhase";
 import ArtPhase from "@/components/ArtPhase";
 import ArchivePhase from "@/components/ArchivePhase";
+import PixelModal from "@/components/PixelModal";
+import AdminPasswordModal from "@/components/AdminPasswordModal";
+import { useTranslation } from "@/lib/i18n/context";
 
 /* ===================================
    State Machine
@@ -72,6 +75,14 @@ function reducer(state: AppState, action: AppAction): AppState {
 
 export default function Home() {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [errorModal, setErrorModal] = useState(false);
+  const { t, locale } = useTranslation();
+
+  // 관리자 모드
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminError, setAdminError] = useState("");
 
   const sceneMode: SceneMode = state.phase === "art" ? "display" : "idle";
   const displayText = state.phase === "art" ? state.answer : "";
@@ -85,7 +96,7 @@ export default function Home() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answer, nickname }),
+        body: JSON.stringify({ answer, nickname, locale }),
       });
 
       if (!res.ok) throw new Error("Failed");
@@ -110,9 +121,13 @@ export default function Home() {
         nickname,
       });
     } catch {
-      alert("오류가 발생했습니다. 다시 시도해주세요.");
-      dispatch({ type: "NEW_WRITE" });
+      setErrorModal(true);
     }
+  }, [locale]);
+
+  const handleErrorClose = useCallback(() => {
+    setErrorModal(false);
+    dispatch({ type: "NEW_WRITE" });
   }, []);
 
   const handleNewWrite = useCallback(() => {
@@ -137,6 +152,39 @@ export default function Home() {
     dispatch({ type: "GO_INTRO" });
   }, []);
 
+  // 관리자 모드 핸들러
+  const handleAdminTrigger = useCallback(() => {
+    if (isAdmin) return; // 이미 관리자면 무시
+    setAdminError("");
+    setShowAdminModal(true);
+  }, [isAdmin]);
+
+  const handleAdminSubmit = useCallback(async (password: string) => {
+    try {
+      const res = await fetch("/api/admin/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+
+      if (res.ok) {
+        setIsAdmin(true);
+        setAdminPassword(password);
+        setShowAdminModal(false);
+        setAdminError("");
+      } else {
+        setAdminError("암호가 올바르지 않습니다.");
+      }
+    } catch {
+      setAdminError("서버 오류가 발생했습니다.");
+    }
+  }, []);
+
+  const handleAdminCancel = useCallback(() => {
+    setShowAdminModal(false);
+    setAdminError("");
+  }, []);
+
   return (
     <div className="min-h-screen" style={{ background: "var(--pixel-bg)" }}>
       {/* 2D 픽셀 씬 */}
@@ -145,7 +193,12 @@ export default function Home() {
       {/* Phase UI */}
       <AnimatePresence mode="wait">
         {state.phase === "question" && (
-          <QuestionPhase key="question" onSubmit={handleSubmit} onArchive={handleGoArchive} />
+          <QuestionPhase
+            key="question"
+            onSubmit={handleSubmit}
+            onArchive={handleGoArchive}
+            onAdminTrigger={handleAdminTrigger}
+          />
         )}
 
         {state.phase === "loading" && (
@@ -155,6 +208,7 @@ export default function Home() {
         {state.phase === "art" && (
           <ArtPhase
             key="art"
+            answer={state.answer}
             generatedText={state.generatedText}
             nickname={state.nickname}
             onNewWrite={handleNewWrite}
@@ -168,9 +222,29 @@ export default function Home() {
             onSelect={handleArchiveSelect}
             onBack={handleArchiveBack}
             onNewWrite={handleNewWrite}
+            isAdmin={isAdmin}
+            adminPassword={adminPassword}
           />
         )}
       </AnimatePresence>
+
+      {/* 에러 모달 */}
+      <PixelModal
+        open={errorModal}
+        title={t.errorTitle}
+        message={t.errorRetry}
+        confirmLabel={t.confirm}
+        onConfirm={handleErrorClose}
+        variant="error"
+      />
+
+      {/* 관리자 암호 모달 */}
+      <AdminPasswordModal
+        open={showAdminModal}
+        onSubmit={handleAdminSubmit}
+        onCancel={handleAdminCancel}
+        error={adminError}
+      />
     </div>
   );
 }

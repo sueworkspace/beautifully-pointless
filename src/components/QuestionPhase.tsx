@@ -1,22 +1,42 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { generateNickname } from "@/lib/nickname";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface QuestionPhaseProps {
   onSubmit: (answer: string, nickname: string) => void;
   onArchive: () => void;
+  onAdminTrigger: () => void;
 }
 
-export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProps) {
+export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: QuestionPhaseProps) {
   const [nickname, setNickname] = useState("");
   const [answer, setAnswer] = useState("");
-  const [focused, setFocused] = useState(false);
-  const [nicknameFocused, setNicknameFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [tickerItems, setTickerItems] = useState<{ nickname: string; answer: string }[]>([]);
   const [cardCount, setCardCount] = useState<number | null>(null);
+  const { t } = useTranslation();
+
+  // 질문 제목 트리플탭 감지 (관리자 모드)
+  const tapCountRef = useRef(0);
+  const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleTitleClick = useCallback(() => {
+    tapCountRef.current += 1;
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+
+    if (tapCountRef.current >= 3) {
+      tapCountRef.current = 0;
+      onAdminTrigger();
+      return;
+    }
+
+    tapTimerRef.current = setTimeout(() => {
+      tapCountRef.current = 0;
+    }, 1500);
+  }, [onAdminTrigger]);
 
   // DB에서 랜덤 카드 + 카드 수 가져오기
   useEffect(() => {
@@ -60,10 +80,10 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
     <motion.div
       className="phase-content min-h-screen flex flex-col justify-center items-center"
       style={{ padding: "0 20px" }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.15, ease: "linear" }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
     >
       {/* 우측 상단 아카이브 버튼 */}
       <button
@@ -79,25 +99,26 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
           minHeight: "auto",
         }}
       >
-        아카이브
+        {t.archive}
       </button>
 
       <div className="w-full max-w-[520px]">
         {/* NES 다이얼로그 프레임 */}
         <div className="pixel-frame p-5 md:p-10">
-          {/* 질문 */}
+          {/* 질문 — 트리플탭으로 관리자 모드 */}
           <motion.h1
             className="pixel-heading text-center"
-            style={{ marginTop: "40px", marginBottom: "20px", fontSize: "32px" }}
+            style={{ marginTop: "40px", marginBottom: "20px", fontSize: "32px", cursor: "default" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.15, delay: 0.1 }}
+            onClick={handleTitleClick}
           >
-            나를 기쁘게 하는
+            {t.questionLine1}
             <br />
-            아름답지만
+            {t.questionLine2}
             <br />
-            <span style={{ color: "var(--pixel-cyan)" }}>무용한 것은?</span>
+            <span style={{ color: "var(--pixel-cyan)" }}>{t.questionLine3}</span>
           </motion.h1>
 
           {/* 답변 입력 필드 */}
@@ -110,30 +131,11 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
               ref={textareaRef}
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              onFocus={() => setFocused(true)}
-              onBlur={() => setFocused(false)}
               onKeyDown={handleKeyDown}
-              placeholder={cardCount !== null ? `${cardCount + 1}번째 당신의 생각을 적어주세요...` : "당신의 생각을 적어주세요..."}
+              placeholder={t.answerPlaceholder(cardCount)}
               rows={3}
               maxLength={500}
-              className="resize-none outline-none pixel-textarea"
-              style={{
-                width: "98%",
-                margin: "0 auto",
-                display: "block",
-                fontFamily: "var(--font-pixel)",
-                fontSize: "16px",
-                lineHeight: 1.8,
-                color: "var(--pixel-white)",
-                background: "var(--pixel-bg)",
-                border: focused
-                  ? "1px solid var(--pixel-blue)"
-                  : "1px solid var(--pixel-dark-gray)",
-                caretColor: "var(--pixel-green)",
-                padding: "12px",
-                imageRendering: "auto",
-                WebkitFontSmoothing: "none",
-              }}
+              className="pixel-textarea-field"
             />
 
             {/* 닉네임 입력 */}
@@ -142,26 +144,9 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
                 type="text"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                onFocus={() => setNicknameFocused(true)}
-                onBlur={() => setNicknameFocused(false)}
-                placeholder="닉네임을 입력하세요"
+                placeholder={t.nicknamePlaceholder}
                 maxLength={20}
-                className="outline-none pixel-input"
-                style={{
-                  flex: 1,
-                  fontFamily: "var(--font-pixel)",
-                  fontSize: "14px",
-                  lineHeight: 1.8,
-                  color: "var(--pixel-white)",
-                  background: "var(--pixel-bg)",
-                  border: nicknameFocused
-                    ? "1px solid var(--pixel-blue)"
-                    : "1px solid var(--pixel-dark-gray)",
-                  caretColor: "var(--pixel-green)",
-                  padding: "10px 12px",
-                  imageRendering: "auto",
-                  WebkitFontSmoothing: "none",
-                }}
+                className="pixel-input-field"
               />
               <button
                 type="button"
@@ -172,9 +157,9 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
                   padding: "8px 12px",
                   whiteSpace: "nowrap",
                 }}
-                title="랜덤 닉네임 생성"
+                title={t.nicknameRandom}
               >
-                닉네임 랜덤
+                {t.nicknameRandom}
               </button>
             </div>
 
@@ -193,7 +178,7 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
                   padding: "10px 24px",
                 }}
               >
-                시작 &gt;
+                {t.submit}
               </button>
             </motion.div>
           </motion.div>
@@ -204,7 +189,7 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
           className="pixel-label text-center mt-4 hidden md:block"
           style={{ color: "var(--pixel-dark-gray)" }}
         >
-          Ctrl+Enter to submit
+          {t.submitHint}
         </p>
       </div>
 
@@ -221,7 +206,7 @@ export default function QuestionPhase({ onSubmit, onArchive }: QuestionPhaseProp
             className="pixel-label mb-2"
             style={{ color: "var(--pixel-dark-gray)", textAlign: "center" }}
           >
-            다른 사람들의 무용한 기쁨
+            {t.tickerLabel}
           </p>
           <div style={{ overflow: "hidden", maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)" }}>
             <div className="marquee-track" style={{ gap: "32px" }}>

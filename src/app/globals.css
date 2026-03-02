@@ -182,6 +182,11 @@ body::before {
   color: var(--pixel-bg);
   background: var(--pixel-white);
   text-shadow: none;
+  transform: translateY(-1px);
+}
+
+.pixel-btn {
+  transition: transform 0.1s;
 }
 
 .pixel-btn:active {
@@ -201,6 +206,43 @@ body::before {
 
 .pixel-btn:disabled:active {
   transform: none;
+}
+
+/* 텍스트 입력 필드 — 공통 스타일 */
+.pixel-textarea-field,
+.pixel-input-field {
+  font-family: var(--font-pixel);
+  color: var(--pixel-white);
+  background: var(--pixel-bg);
+  border: 1px solid var(--pixel-dark-gray);
+  caret-color: var(--pixel-green);
+  image-rendering: auto;
+  -webkit-font-smoothing: none;
+  outline: none;
+  transition: border-color 0.1s;
+}
+
+.pixel-textarea-field:focus,
+.pixel-input-field:focus {
+  border-color: var(--pixel-blue);
+  box-shadow: inset 0 0 8px rgba(60, 188, 252, 0.3);
+}
+
+.pixel-textarea-field {
+  font-size: 16px;
+  line-height: 1.8;
+  padding: 12px;
+  width: 98%;
+  margin: 0 auto;
+  display: block;
+  resize: none;
+}
+
+.pixel-input-field {
+  font-size: 14px;
+  line-height: 1.8;
+  padding: 10px 12px;
+  flex: 1;
 }
 
 /* 입력 필드 포커스 */
@@ -393,6 +435,7 @@ body::before {
 @media (hover: hover) {
   .archive-card:hover {
     border-color: var(--pixel-blue);
+    box-shadow: 0 0 8px rgba(60, 188, 252, 0.25);
   }
 }
 
