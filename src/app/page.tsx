@@ -92,6 +92,17 @@ export default function Home() {
 
       const data = await res.json();
 
+      // localStorage에 deleteToken 저장
+      if (data.deleteToken) {
+        try {
+          const tokens = JSON.parse(localStorage.getItem("deleteTokens") || "{}");
+          tokens[data.id] = data.deleteToken;
+          localStorage.setItem("deleteTokens", JSON.stringify(tokens));
+        } catch {
+          // localStorage 사용 불가 시 무시
+        }
+      }
+
       dispatch({
         type: "SUBMIT",
         generatedText: data.generatedText,

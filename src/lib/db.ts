@@ -14,15 +14,16 @@ export async function ensureTable() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `;
+  await sql`ALTER TABLE cards ADD COLUMN IF NOT EXISTS delete_token TEXT`;
 }
 
 /**
  * 카드 저장
  */
-export async function saveCard(card: CardData) {
+export async function saveCard(card: CardData, deleteToken?: string) {
   await sql`
-    INSERT INTO cards (id, nickname, answer, generated_text, created_at)
-    VALUES (${card.id}, ${card.nickname}, ${card.answer}, ${card.generatedText}, ${card.createdAt})
+    INSERT INTO cards (id, nickname, answer, generated_text, created_at, delete_token)
+    VALUES (${card.id}, ${card.nickname}, ${card.answer}, ${card.generatedText}, ${card.createdAt}, ${deleteToken ?? null})
     ON CONFLICT (id) DO NOTHING
   `;
 }
@@ -53,8 +54,9 @@ export async function getRandomCards(limit = 20): Promise<CardData[]> {
 /**
  * 카드 삭제
  */
-export async function deleteCard(id: string) {
-  await sql`DELETE FROM cards WHERE id = ${id}`;
+export async function deleteCard(id: string, token: string) {
+  const result = await sql`DELETE FROM cards WHERE id = ${id} AND delete_token = ${token}`;
+  return (result.rowCount ?? 0) > 0;
 }
 
 /**

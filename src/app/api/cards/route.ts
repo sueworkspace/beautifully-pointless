@@ -26,12 +26,20 @@ export async function GET(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const id = req.nextUrl.searchParams.get("id");
+    const token = req.nextUrl.searchParams.get("token");
+
     if (!id) {
       return NextResponse.json({ error: "id가 필요합니다." }, { status: 400 });
     }
+    if (!token) {
+      return NextResponse.json({ error: "삭제 권한이 없습니다." }, { status: 403 });
+    }
 
     await ensureTable();
-    await deleteCard(id);
+    const deleted = await deleteCard(id, token);
+    if (!deleted) {
+      return NextResponse.json({ error: "삭제 권한이 없습니다." }, { status: 403 });
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Card delete error:", error);

@@ -44,14 +44,31 @@ export default function ArchivePhase({
 }: ArchivePhaseProps) {
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [ownedTokens, setOwnedTokens] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    try {
+      const tokens = JSON.parse(localStorage.getItem("deleteTokens") || "{}");
+      setOwnedTokens(tokens);
+    } catch {
+      // localStorage 사용 불가 시 무시
+    }
+  }, []);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
+    const token = ownedTokens[id];
+    if (!token) return;
     if (!confirm("정말 삭제하시겠습니까?")) return;
     try {
-      const res = await fetch(`/api/cards?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/cards?id=${id}&token=${encodeURIComponent(token)}`, { method: "DELETE" });
       if (res.ok) {
         setCards((prev) => prev.filter((c) => c.id !== id));
+        // localStorage에서도 토큰 제거
+        const updated = { ...ownedTokens };
+        delete updated[id];
+        setOwnedTokens(updated);
+        localStorage.setItem("deleteTokens", JSON.stringify(updated));
       }
     } catch {
       // ignore
@@ -221,16 +238,18 @@ export default function ArchivePhase({
                     <span className="pixel-label hover-flash-text" style={{ color: "var(--pixel-blue)" }}>
                       보기 &gt;
                     </span>
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={(e) => handleDelete(e, card.id)}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleDelete(e as unknown as React.MouseEvent, card.id); }}
-                      className="pixel-label p-1"
-                      style={{ color: "var(--pixel-dark-gray)", cursor: "pointer", fontSize: "13px" }}
-                    >
-                      X
-                    </span>
+                    {ownedTokens[card.id] && (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => handleDelete(e, card.id)}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleDelete(e as unknown as React.MouseEvent, card.id); }}
+                        className="pixel-label p-1"
+                        style={{ color: "var(--pixel-dark-gray)", cursor: "pointer", fontSize: "13px" }}
+                      >
+                        X
+                      </span>
+                    )}
                   </div>
                 </div>
               </motion.button>

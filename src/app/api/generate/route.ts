@@ -72,12 +72,13 @@ export async function POST(req: NextRequest) {
     }
 
     const id = crypto.randomUUID();
+    const deleteToken = crypto.randomUUID();
     const createdAt = new Date().toISOString();
 
     // DB에 저장
     try {
       await ensureTable();
-      await saveCard({ id, nickname: body.nickname || "", answer: trimmed, generatedText, createdAt });
+      await saveCard({ id, nickname: body.nickname || "", answer: trimmed, generatedText, createdAt }, deleteToken);
     } catch (dbErr) {
       console.error("DB save error:", dbErr);
     }
@@ -87,6 +88,7 @@ export async function POST(req: NextRequest) {
       answer: trimmed,
       generatedText,
       createdAt,
+      deleteToken,
     });
   } catch (error) {
     console.error("Generate API error:", error);
