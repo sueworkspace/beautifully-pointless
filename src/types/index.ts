@@ -1,5 +1,5 @@
 /* Phase 타입 */
-export type Phase = "intro" | "question" | "shatter" | "art" | "archive";
+export type Phase = "intro" | "question" | "loading" | "art" | "archive";
 
 /* 앱 상태 */
 export interface AppState {
@@ -15,8 +15,8 @@ export interface AppState {
 export type AppAction =
   | { type: "GO_QUESTION" }
   | { type: "SET_ANSWER"; answer: string }
+  | { type: "START_LOADING"; answer: string; nickname: string }
   | { type: "SUBMIT"; generatedText: string; cardId: string; nickname: string }
-  | { type: "SHATTER_DONE" }
   | { type: "GO_ARCHIVE" }
   | { type: "SELECT_ARCHIVE"; id: string; generatedText: string; answer: string; nickname: string }
   | { type: "GO_INTRO" }

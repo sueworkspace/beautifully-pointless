@@ -205,7 +205,7 @@ export default function PixelScene({ text, mode }: PixelSceneProps) {
   const FRAME_SKIP = 6; // ~10fps at 60fps RAF
 
   // 긴 텍스트 임계값
-  const TEXT_THRESHOLD = isMobile ? 15 : 35;
+  const TEXT_THRESHOLD = isMobile ? 15 : 20;
 
   const buildTextPixels = useCallback(() => {
     if (!textRef.current) {

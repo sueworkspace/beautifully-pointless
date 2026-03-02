@@ -5,7 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import type { AppState, AppAction, CardData } from "@/types";
 import PixelScene, { type SceneMode } from "@/components/PixelScene";
 import QuestionPhase from "@/components/QuestionPhase";
-import ShatterPhase from "@/components/ShatterPhase";
+import LoadingPhase from "@/components/LoadingPhase";
 import ArtPhase from "@/components/ArtPhase";
 import ArchivePhase from "@/components/ArchivePhase";
 
@@ -28,16 +28,21 @@ function reducer(state: AppState, action: AppAction): AppState {
       return { ...state, phase: "question" };
     case "SET_ANSWER":
       return { ...state, answer: action.answer };
+    case "START_LOADING":
+      return {
+        ...state,
+        phase: "loading",
+        answer: action.answer,
+        nickname: action.nickname,
+      };
     case "SUBMIT":
       return {
         ...state,
-        phase: "shatter",
+        phase: "art",
         generatedText: action.generatedText,
         cardId: action.cardId,
         nickname: action.nickname,
       };
-    case "SHATTER_DONE":
-      return { ...state, phase: "art" };
     case "GO_ARCHIVE":
       return { ...state, phase: "archive" };
     case "SELECT_ARCHIVE":
@@ -73,12 +78,8 @@ export default function Home() {
 
   /* ---- Handlers ---- */
 
-  const handleShatterDone = useCallback(() => {
-    dispatch({ type: "SHATTER_DONE" });
-  }, []);
-
   const handleSubmit = useCallback(async (answer: string, nickname: string) => {
-    dispatch({ type: "SET_ANSWER", answer });
+    dispatch({ type: "START_LOADING", answer, nickname });
 
     try {
       const res = await fetch("/api/generate", {
@@ -99,6 +100,7 @@ export default function Home() {
       });
     } catch {
       alert("오류가 발생했습니다. 다시 시도해주세요.");
+      dispatch({ type: "NEW_WRITE" });
     }
   }, []);
 
@@ -135,12 +137,8 @@ export default function Home() {
           <QuestionPhase key="question" onSubmit={handleSubmit} />
         )}
 
-        {state.phase === "shatter" && (
-          <ShatterPhase
-            key="shatter"
-            answer={state.answer}
-            onComplete={handleShatterDone}
-          />
+        {state.phase === "loading" && (
+          <LoadingPhase key="loading" />
         )}
 
         {state.phase === "art" && (

@@ -85,7 +85,7 @@ export default function QuestionPhase({ onSubmit }: QuestionPhaseProps) {
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               onKeyDown={handleKeyDown}
-              placeholder="당신의 답을 적어주세요..."
+              placeholder="당신의 생각을 적어주세요..."
               rows={3}
               maxLength={500}
               className="resize-none outline-none pixel-textarea"
