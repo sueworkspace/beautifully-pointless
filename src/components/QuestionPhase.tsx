@@ -17,6 +17,7 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [tickerItems, setTickerItems] = useState<{ nickname: string; answer: string }[]>([]);
   const [cardCount, setCardCount] = useState<number | null>(null);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
   const { t } = useTranslation();
 
   // 질문 제목 트리플탭 감지 (관리자 모드)
@@ -37,6 +38,24 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
       tapCountRef.current = 0;
     }, 1500);
   }, [onAdminTrigger]);
+
+  // 모바일 키보드 감지 (visualViewport API)
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const handleResize = () => {
+      setKeyboardOpen(vv.height < window.innerHeight * 0.75);
+    };
+    vv.addEventListener("resize", handleResize);
+    return () => vv.removeEventListener("resize", handleResize);
+  }, []);
+
+  // 포커스 시 스크롤
+  const handleFocus = useCallback((e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+  }, []);
 
   // DB에서 랜덤 카드 + 카드 수 가져오기
   useEffect(() => {
@@ -78,7 +97,7 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
 
   return (
     <motion.div
-      className="phase-content min-h-screen flex flex-col justify-center items-center"
+      className={`phase-content min-h-screen flex flex-col items-center ${keyboardOpen ? "justify-start pt-4" : "justify-center"}`}
       style={{ padding: "0 20px" }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -108,7 +127,7 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
           {/* 질문 — 트리플탭으로 관리자 모드 */}
           <motion.h1
             className="pixel-heading text-center"
-            style={{ marginTop: "40px", marginBottom: "20px", fontSize: "32px", cursor: "default" }}
+            style={{ marginTop: keyboardOpen ? "16px" : "40px", marginBottom: "20px", fontSize: "32px", cursor: "default" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.15, delay: 0.1 }}
@@ -132,6 +151,7 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               onKeyDown={handleKeyDown}
+              onFocus={handleFocus}
               placeholder={t.answerPlaceholder(cardCount)}
               rows={3}
               maxLength={500}
@@ -144,6 +164,7 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
                 type="text"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
+                onFocus={handleFocus}
                 placeholder={t.nicknamePlaceholder}
                 maxLength={20}
                 className="pixel-input-field"
@@ -215,8 +236,8 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
         </p>
       </div>
 
-      {/* 다른 사람들의 답변 티커 — 데이터 없으면 숨김 */}
-      {tickerItems.length > 0 && (
+      {/* 다른 사람들의 답변 티커 — 데이터 없으면 숨김, 키보드 열릴 때 숨김 */}
+      {tickerItems.length > 0 && !keyboardOpen && (
         <motion.div
           className="w-full max-w-[520px] mt-8"
           initial={{ opacity: 0 }}

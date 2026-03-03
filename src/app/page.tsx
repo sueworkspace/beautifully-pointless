@@ -176,6 +176,7 @@ export default function Home() {
         setAdminPassword(password);
         setShowAdminModal(false);
         setAdminError("");
+        trackEvent("admin_login");
       } else {
         setAdminError("암호가 올바르지 않습니다.");
       }

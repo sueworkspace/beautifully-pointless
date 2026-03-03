@@ -102,6 +102,31 @@ export async function getCardCount(): Promise<number> {
 }
 
 /**
+ * 커서 기반 페이지네이션 조회 (최신순)
+ */
+export async function getCardsPaginated(cursor?: string, limit = 20): Promise<{ cards: CardData[]; nextCursor: string | null }> {
+  const { rows } = cursor
+    ? await sql`
+        SELECT id, nickname, answer, generated_text, created_at
+        FROM cards WHERE created_at < ${cursor}
+        ORDER BY created_at DESC LIMIT ${limit}
+      `
+    : await sql`
+        SELECT id, nickname, answer, generated_text, created_at
+        FROM cards ORDER BY created_at DESC LIMIT ${limit}
+      `;
+  const cards = rows.map((r) => ({
+    id: r.id,
+    nickname: r.nickname,
+    answer: r.answer,
+    generatedText: r.generated_text,
+    createdAt: r.created_at,
+  }));
+  const nextCursor = cards.length === limit ? cards[cards.length - 1].createdAt : null;
+  return { cards, nextCursor };
+}
+
+/**
  * 전체 카드 조회 (최신순)
  */
 export async function getAllCards(): Promise<CardData[]> {

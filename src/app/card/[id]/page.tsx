@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCardById } from "@/lib/db";
+import CardClient from "./CardClient";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -35,10 +36,11 @@ export default async function CardPage({ params }: Props) {
   }
 
   return (
-    <div
-      className="min-h-screen flex flex-col justify-center items-center"
-      style={{ background: "var(--pixel-bg)", padding: "20px" }}
-    >
+    <CardClient answer={card.answer}>
+      <div
+        className="phase-content min-h-screen flex flex-col justify-center items-center"
+        style={{ padding: "20px" }}
+      >
       <div className="w-full max-w-[520px]">
         {/* NES 프레임 안에 카드 내용 */}
         <div className="pixel-frame p-5 md:p-10">
@@ -99,6 +101,7 @@ export default async function CardPage({ params }: Props) {
           </Link>
         </div>
       </div>
-    </div>
+      </div>
+    </CardClient>
   );
 }

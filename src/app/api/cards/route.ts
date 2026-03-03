@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ensureTable, getRandomCards, getAllCards, getCardCount, deleteCard, adminDeleteCard, adminDeleteAllCards } from "@/lib/db";
+import { ensureTable, getRandomCards, getCardsPaginated, getCardCount, deleteCard, adminDeleteCard, adminDeleteAllCards } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
@@ -17,8 +17,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ count });
     }
 
-    const cards = await getAllCards();
-    return NextResponse.json(cards);
+    const cursor = req.nextUrl.searchParams.get("cursor") || undefined;
+    const limit = Math.min(Number(req.nextUrl.searchParams.get("limit")) || 20, 100);
+    const result = await getCardsPaginated(cursor, limit);
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Cards API error:", error);
     return NextResponse.json(

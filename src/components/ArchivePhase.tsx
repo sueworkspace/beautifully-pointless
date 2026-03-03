@@ -1,10 +1,11 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { CardData } from "@/types";
 import { useTranslation } from "@/lib/i18n/context";
 import PixelModal from "@/components/PixelModal";
+import { trackEvent } from "@/lib/analytics";
 
 interface ArchivePhaseProps {
   onSelect: (card: CardData) => void;
@@ -50,9 +51,13 @@ export default function ArchivePhase({
 }: ArchivePhaseProps) {
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
   const [ownedTokens, setOwnedTokens] = useState<Record<string, string>>({});
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [showDeleteAll, setShowDeleteAll] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -87,6 +92,8 @@ export default function ArchivePhase({
 
       if (res.ok) {
         setCards((prev) => prev.filter((c) => c.id !== deleteTargetId));
+        setTotalCount((prev) => prev - 1);
+        trackEvent("card_delete", { card_id: deleteTargetId });
         if (ownedTokens[deleteTargetId]) {
           const updated = { ...ownedTokens };
           delete updated[deleteTargetId];
@@ -107,23 +114,70 @@ export default function ArchivePhase({
       const res = await fetch(`/api/cards?all=true&adminPassword=${encodeURIComponent(adminPassword)}`, { method: "DELETE" });
       if (res.ok) {
         setCards([]);
+        setTotalCount(0);
+        setNextCursor(null);
         setOwnedTokens({});
         localStorage.setItem("deleteTokens", "{}");
+        trackEvent("admin_delete_all");
       }
     } catch {
       // ignore
     }
   }, [adminPassword]);
 
+  // 추가 로드
+  const fetchMore = useCallback(async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const res = await fetch(`/api/cards?cursor=${encodeURIComponent(nextCursor)}&limit=20`);
+      const data = await res.json();
+      if (data.cards) {
+        setCards((prev) => [...prev, ...data.cards]);
+        setNextCursor(data.nextCursor);
+      }
+    } catch {
+      // ignore
+    }
+    setLoadingMore(false);
+  }, [nextCursor, loadingMore]);
+
+  // 초기 로드
   useEffect(() => {
-    fetch("/api/cards")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setCards(data);
+    Promise.all([
+      fetch("/api/cards?limit=20").then((res) => res.json()),
+      fetch("/api/cards?mode=count").then((res) => res.json()),
+    ])
+      .then(([data, countData]) => {
+        if (data.cards) {
+          setCards(data.cards);
+          setNextCursor(data.nextCursor);
+        }
+        if (typeof countData.count === "number") {
+          setTotalCount(countData.count);
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  // IntersectionObserver — sentinel 감시
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchMore();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [fetchMore]);
 
   return (
     <motion.div
@@ -180,7 +234,7 @@ export default function ArchivePhase({
         </h2>
         <div className="flex items-center gap-4 mt-3 md:mt-4">
           <p className="pixel-label" style={{ color: "var(--pixel-dark-gray)" }}>
-            {t.records(cards.length)}
+            {t.records(totalCount)}
           </p>
           {isAdmin && cards.length > 0 && (
             <button
@@ -246,13 +300,13 @@ export default function ArchivePhase({
                 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: index * 0.05, duration: 0.1 }}
+                transition={{ delay: Math.min(index, 19) * 0.05, duration: 0.1 }}
                 whileHover={{ backgroundColor: "rgba(26, 26, 46, 1)" }}
               >
                 {/* 넘버링 + 날짜 */}
                 <div className="flex justify-between items-center mb-3">
                   <span className="pixel-label" style={{ color: "var(--pixel-gold)" }}>
-                    NO.{String(cards.length - index).padStart(3, "0")}
+                    NO.{String(totalCount - index).padStart(3, "0")}
                   </span>
                   <span className="pixel-label" style={{ color: "var(--pixel-dark-gray)" }}>
                     {new Date(card.createdAt).toLocaleDateString("ko-KR", {
@@ -329,6 +383,13 @@ export default function ArchivePhase({
             ))}
           </div>
 
+          {/* 무한스크롤 sentinel */}
+          {nextCursor && (
+            <div ref={sentinelRef} className="flex justify-center py-8">
+              {loadingMore && <PixelSpinner />}
+            </div>
+          )}
+
           {/* 하단 디바이더 */}
           <div className="pixel-divider mt-3 md:mt-4" />
 
@@ -361,7 +422,7 @@ export default function ArchivePhase({
       <PixelModal
         open={showDeleteAll}
         title="ADMIN"
-        message={`전체 ${cards.length}개의 기록을 삭제합니다.`}
+        message={`전체 ${totalCount}개의 기록을 삭제합니다.`}
         confirmLabel="전체 삭제"
         cancelLabel={t.cancel}
         onConfirm={handleDeleteAllConfirm}
