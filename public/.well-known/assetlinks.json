@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.pointlessjoy.app",
+      "sha256_cert_fingerprints": [
+        "4D:66:21:88:42:9C:9F:1C:46:00:4C:2D:13:3F:64:D9:F6:D3:D4:97:C7:F7:EF:37:11:88:82:B8:0C:63:22:E6"
+      ]
+    }
+  }
+]

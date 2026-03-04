@@ -1,0 +1,43 @@
+{
+  "packageId": "com.pointlessjoy.app",
+  "host": "pointless-joy.vercel.app",
+  "name": "무용한 기쁨 — Pointless Joy",
+  "launcherName": "무용한 기쁨",
+  "display": "standalone",
+  "themeColor": "#0F0F23",
+  "themeColorDark": "#0F0F23",
+  "navigationColor": "#0F0F23",
+  "navigationColorDark": "#0F0F23",
+  "navigationDividerColor": "#0F0F23",
+  "navigationDividerColorDark": "#0F0F23",
+  "backgroundColor": "#0F0F23",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://pointless-joy.vercel.app/api/app-icon?size=512",
+  "maskableIconUrl": "https://pointless-joy.vercel.app/api/app-icon?size=512",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./pointless-joy.keystore",
+    "alias": "pointless-joy"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://pointless-joy.vercel.app/manifest.webmanifest",
+  "fallbackType": "webview",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 19,
+  "orientation": "default",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "displayOverride": [],
+  "appVersion": "1.0.0"
+}

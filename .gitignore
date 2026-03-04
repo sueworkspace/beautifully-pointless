@@ -40,6 +40,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# android TWA
+android/app/build/
+android/.gradle/
+android/.next/
+android/build/
+android/*.keystore
+android/store_icon.png
+android/icon-512.png
+
 # project notes
 CONVERSATION_BACKUP.md
 .omc/

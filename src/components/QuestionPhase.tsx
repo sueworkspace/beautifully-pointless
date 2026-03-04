@@ -273,6 +273,32 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
           </div>
         </motion.div>
       )}
+
+      {/* 하단 법률 링크 — 키보드 열릴 때 숨김 */}
+      {!keyboardOpen && (
+        <div
+          className="pixel-label"
+          style={{
+            position: "fixed",
+            bottom: "16px",
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            fontSize: "10px",
+            color: "var(--pixel-dark-gray)",
+            letterSpacing: "0.05em",
+            zIndex: 10,
+          }}
+        >
+          <a href="/terms" target="_blank" style={{ color: "var(--pixel-dark-gray)", textDecoration: "underline" }}>
+            {t.termsOfService}
+          </a>
+          {" | "}
+          <a href="/privacy" target="_blank" style={{ color: "var(--pixel-dark-gray)", textDecoration: "underline" }}>
+            {t.privacyPolicy}
+          </a>
+        </div>
+      )}
     </motion.div>
   );
 }
