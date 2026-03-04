@@ -9,6 +9,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#0F0F23",
 };
 
 export const metadata: Metadata = {
@@ -21,6 +23,11 @@ export const metadata: Metadata = {
     description:
       "나를 기쁘게 하는 아름답지만 무용한 것은?",
     type: "website",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "무용한 기쁨",
   },
 };
 
@@ -36,6 +43,9 @@ export default function RootLayout({
           {children}
         </I18nProvider>
         <Analytics />
+        <Script id="sw-register" strategy="afterInteractive">
+          {`if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); }`}
+        </Script>
         {process.env.NEXT_PUBLIC_GA_ID && (
           <>
             <Script

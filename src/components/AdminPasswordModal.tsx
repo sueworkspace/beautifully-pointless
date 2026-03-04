@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface AdminPasswordModalProps {
   open: boolean;
@@ -17,6 +18,7 @@ export default function AdminPasswordModal({
   error,
 }: AdminPasswordModalProps) {
   const [password, setPassword] = useState("");
+  const { t } = useTranslation();
 
   const handleSubmit = () => {
     if (!password.trim()) return;
@@ -86,7 +88,7 @@ export default function AdminPasswordModal({
                 fontSize: "13px",
               }}
             >
-              관리자 암호를 입력하세요
+              {t.adminPrompt}
             </p>
 
             <input
@@ -119,7 +121,7 @@ export default function AdminPasswordModal({
                 className="pixel-btn"
                 style={{ fontSize: "12px", padding: "8px 16px", minWidth: "80px" }}
               >
-                취소
+                {t.cancel}
               </button>
               <button
                 onClick={handleSubmit}
@@ -133,7 +135,7 @@ export default function AdminPasswordModal({
                   color: "var(--pixel-bg)",
                 }}
               >
-                확인
+                {t.confirm}
               </button>
             </div>
           </motion.div>

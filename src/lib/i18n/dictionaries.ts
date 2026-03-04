@@ -71,6 +71,11 @@ export const dictionaries = {
     privacyPolicy: "개인정보처리방침",
     consentSuffix: "에 동의합니다.",
 
+    /* 관리자 모달 */
+    adminPrompt: "관리자 암호를 입력하세요",
+    adminWrongPassword: "암호가 올바르지 않습니다.",
+    adminServerError: "서버 오류가 발생했습니다.",
+
     /* Card 랜딩 페이지 */
     cardCta: "나도 써보기 >",
     cardQuestion: "나를 기쁘게 하는 아름답지만 무용한 것은?",
@@ -134,6 +139,10 @@ export const dictionaries = {
     consentAnd: " and ",
     privacyPolicy: "Privacy Policy",
     consentSuffix: ".",
+
+    adminPrompt: "Enter admin password",
+    adminWrongPassword: "Incorrect password.",
+    adminServerError: "Server error occurred.",
 
     cardCta: "Try It Yourself >",
     cardQuestion: "What is the beautiful but useless thing that brings me joy?",

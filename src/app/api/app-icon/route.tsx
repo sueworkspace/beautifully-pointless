@@ -2,10 +2,12 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export async function GET() {
-  const SIZE = 1024;
-  const P = 64; // 16x16 grid
-  const SP = 16; // 별 크기: 1/4
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const sizeParam = searchParams.get("size");
+  const SIZE = sizeParam ? Math.min(Math.max(Number(sizeParam), 32), 1024) : 1024;
+  const P = SIZE / 16; // 16x16 grid
+  const SP = P / 4; // 별 크기: 1/4
 
   const pixels: { x: number; y: number; w: number; c: string }[] = [];
 

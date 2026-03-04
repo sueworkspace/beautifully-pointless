@@ -49,9 +49,6 @@ export async function getRandomCards(limit = 20): Promise<CardData[]> {
 }
 
 /**
- * 전체 카드 조회 (최신순)
- */
-/**
  * 카드 삭제
  */
 export async function deleteCard(id: string, token: string) {
@@ -126,20 +123,3 @@ export async function getCardsPaginated(cursor?: string, limit = 20): Promise<{ 
   return { cards, nextCursor };
 }
 
-/**
- * 전체 카드 조회 (최신순)
- */
-export async function getAllCards(): Promise<CardData[]> {
-  const { rows } = await sql`
-    SELECT id, nickname, answer, generated_text, created_at
-    FROM cards
-    ORDER BY created_at DESC
-  `;
-  return rows.map((r) => ({
-    id: r.id,
-    nickname: r.nickname,
-    answer: r.answer,
-    generatedText: r.generated_text,
-    createdAt: r.created_at,
-  }));
-}

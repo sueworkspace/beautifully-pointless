@@ -1,14 +1,10 @@
 "use client";
 
-import { useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { hashString, seededRandom } from "@/lib/hash";
 import { getPixelGridConfig, getOffsetY } from "@/lib/pixelGrid";
 
 export type SceneMode = "idle" | "display";
-
-export interface PixelSceneHandle {
-  captureImage: () => Promise<Blob | null>;
-}
 
 interface PixelSceneProps {
   text: string;
@@ -175,8 +171,7 @@ function wrapCanvasText(
 
 /* ─── 메인 컴포넌트 ─── */
 
-const PixelScene = forwardRef<PixelSceneHandle, PixelSceneProps>(
-  function PixelScene({ text, mode }, ref) {
+function PixelScene({ text, mode }: PixelSceneProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const rafRef = useRef<number>(0);
     const starsRef = useRef<Star[]>([]);
@@ -208,17 +203,6 @@ const PixelScene = forwardRef<PixelSceneHandle, PixelSceneProps>(
 
     modeRef.current = mode;
     textRef.current = text;
-
-    // captureImage: 현재 캔버스 상태를 PNG Blob으로 반환
-    useImperativeHandle(ref, () => ({
-      captureImage: async () => {
-        const canvas = canvasRef.current;
-        if (!canvas) return null;
-        return new Promise<Blob | null>((resolve) => {
-          canvas.toBlob((blob) => resolve(blob), "image/png");
-        });
-      },
-    }));
 
     const buildTextPixels = useCallback(() => {
       const currentText = textRef.current;
@@ -476,20 +460,19 @@ const PixelScene = forwardRef<PixelSceneHandle, PixelSceneProps>(
     }, [text, mode, buildTextPixels]);
 
     return (
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          zIndex: 0,
-          imageRendering: "pixelated",
-        }}
-      />
-    );
-  }
-);
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        zIndex: 0,
+        imageRendering: "pixelated",
+      }}
+    />
+  );
+}
 
 export default PixelScene;

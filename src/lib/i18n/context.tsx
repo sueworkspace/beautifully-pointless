@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { dictionaries, type Locale, type Dictionary } from "./dictionaries";
 
 interface I18nContextValue {
@@ -21,6 +21,10 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const toggleLocale = useCallback(() => {
     setLocale((prev) => (prev === "ko" ? "en" : "ko"));
   }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   return (
     <I18nContext.Provider value={{ locale, t: dictionaries[locale], toggleLocale }}>

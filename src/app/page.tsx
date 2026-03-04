@@ -178,12 +178,12 @@ export default function Home() {
         setAdminError("");
         trackEvent("admin_login");
       } else {
-        setAdminError("암호가 올바르지 않습니다.");
+        setAdminError(t.adminWrongPassword);
       }
     } catch {
-      setAdminError("서버 오류가 발생했습니다.");
+      setAdminError(t.adminServerError);
     }
-  }, []);
+  }, [t]);
 
   const handleAdminCancel = useCallback(() => {
     setShowAdminModal(false);
