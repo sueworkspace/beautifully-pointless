@@ -50,6 +50,7 @@ export default async function CardPage({ params }: Props) {
             style={{
               color: "var(--pixel-cyan)",
               fontSize: "24px",
+              marginTop: "16px",
               marginBottom: "24px",
               wordBreak: "keep-all",
               lineHeight: 1.6,
@@ -88,14 +89,14 @@ export default async function CardPage({ params }: Props) {
 
         {/* 질문 문구 */}
         <p
-          className="pixel-label text-center mt-6"
+          className="pixel-label text-center mt-10"
           style={{ color: "var(--pixel-dark-gray)", fontSize: "11px" }}
         >
           나를 기쁘게 하는 아름답지만 무용한 것은?
         </p>
 
         {/* CTA 버튼 */}
-        <div className="text-center mt-4">
+        <div className="text-center mt-6">
           <Link href="/" className="pixel-btn" style={{ textDecoration: "none", fontSize: "14px", padding: "10px 24px" }}>
             나도 써보기 &gt;
           </Link>
