@@ -21,6 +21,7 @@ interface ShareOptions {
   title: string;
   shareText: string;
   fileName: string;
+  cardId?: string | null;
 }
 
 /* ─── 텍스트 줄바꿈 (한글 지원) ─── */
@@ -258,9 +259,36 @@ function canWebShare(): boolean {
   );
 }
 
+/* ─── 인앱 브라우저 감지 ─── */
+
+function isInAppBrowser(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  return /KAKAOTALK|NAVER|LINE|Instagram|FBAN|FBAV/i.test(ua);
+}
+
 /* ─── 공유 실행 ─── */
 
-export async function shareArt(options: ShareOptions): Promise<void> {
+export async function shareArt(options: ShareOptions): Promise<"shared" | "downloaded" | "copied"> {
+  // 인앱 브라우저: 링크 복사로 폴백
+  if (isInAppBrowser()) {
+    const url = options.cardId
+      ? `${window.location.origin}/card/${options.cardId}`
+      : window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // clipboard API 미지원 시 execCommand 폴백
+      const input = document.createElement("input");
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+    }
+    return "copied";
+  }
+
   const cardBlob = await renderShareCard(options);
 
   if (canWebShare()) {
@@ -276,13 +304,14 @@ export async function shareArt(options: ShareOptions): Promise<void> {
     if (navigator.canShare(shareData)) {
       try {
         await navigator.share(shareData);
-        return;
+        return "shared";
       } catch (err) {
-        if (err instanceof Error && err.name === "AbortError") return;
+        if (err instanceof Error && err.name === "AbortError") return "shared";
       }
     }
   }
 
   // 폴백: PNG 다운로드
   downloadBlob(cardBlob, options.fileName);
+  return "downloaded";
 }

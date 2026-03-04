@@ -28,15 +28,20 @@ export default function ArtPhase({
 
   const handleShare = useCallback(async () => {
     trackEvent("share_click");
-    await shareArt({
+    const result = await shareArt({
       answer,
       generatedText,
       nickname,
       title: t.shareTitle,
       shareText: t.shareText,
       fileName: t.downloadFileName,
+      cardId,
     });
-  }, [answer, generatedText, nickname, t]);
+    if (result === "copied") {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    }
+  }, [answer, generatedText, nickname, cardId, t]);
 
   const handleLinkCopy = useCallback(async () => {
     if (!cardId) return;
