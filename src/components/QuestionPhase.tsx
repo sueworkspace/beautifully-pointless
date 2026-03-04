@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { generateNickname } from "@/lib/nickname";
 import { useTranslation } from "@/lib/i18n/context";
-import LanguageToggle from "@/components/LanguageToggle";
 
 interface QuestionPhaseProps {
   onSubmit: (answer: string, nickname: string) => void;
@@ -105,18 +104,6 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
-      {/* 좌측 상단 언어 토글 */}
-      <div
-        style={{
-          position: "fixed",
-          top: "16px",
-          left: "16px",
-          zIndex: 10,
-        }}
-      >
-        <LanguageToggle />
-      </div>
-
       {/* 우측 상단 아카이브 버튼 */}
       <button
         onClick={onArchive}

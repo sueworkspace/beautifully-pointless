@@ -72,7 +72,7 @@ export default function ArtPhase({
           style={{
             background: "rgba(15, 15, 35, 0.85)",
             padding: "20px",
-            marginBottom: "clamp(16px, 4vh, 40px)",
+            marginBottom: "clamp(24px, 6vh, 56px)",
             border: "2px solid rgba(88, 216, 216, 0.3)",
           }}
         >
@@ -113,21 +113,21 @@ export default function ArtPhase({
           </p>
         </div>
 
-        {/* 버튼 */}
-        <div className="flex gap-2 md:gap-4 items-center justify-center flex-col min-[481px]:flex-row">
-          <button onClick={onNewWrite} className="pixel-btn" style={{ minWidth: "120px" }}>
+        {/* 버튼 2×2 그리드 */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", maxWidth: "280px", margin: "0 auto" }}>
+          <button onClick={onNewWrite} className="pixel-btn" style={{ width: "100%" }}>
             {t.rewrite}
           </button>
-          <button onClick={handleShare} className="pixel-btn" style={{ minWidth: "120px" }}>
-            {t.share}
+          <button onClick={onArchive} className="pixel-btn" style={{ width: "100%" }}>
+            {t.archive}
           </button>
           {cardId && (
-            <button onClick={handleLinkCopy} className="pixel-btn" style={{ minWidth: "120px" }}>
+            <button onClick={handleLinkCopy} className="pixel-btn" style={{ width: "100%" }}>
               {linkCopied ? t.linkCopied : t.linkCopy}
             </button>
           )}
-          <button onClick={onArchive} className="pixel-btn" style={{ minWidth: "120px" }}>
-            {t.archive}
+          <button onClick={handleShare} className="pixel-btn" style={{ width: "100%" }}>
+            {t.share}
           </button>
         </div>
       </motion.div>
