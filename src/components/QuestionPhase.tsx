@@ -161,7 +161,7 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
             />
 
             {/* 닉네임 입력 */}
-            <div className="flex gap-2 mt-3 items-stretch flex-col min-[481px]:flex-row" style={{ width: "98%", margin: "0 auto" }}>
+            <div className="flex gap-2 mt-3 items-stretch flex-row" style={{ width: "98%", margin: "0 auto" }}>
               <input
                 type="text"
                 value={nickname}
@@ -170,6 +170,7 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
                 placeholder={t.nicknamePlaceholder}
                 maxLength={20}
                 className="pixel-input-field"
+                style={{ flex: 1, minWidth: 0 }}
               />
               <button
                 type="button"
