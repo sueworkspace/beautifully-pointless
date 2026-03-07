@@ -104,22 +104,24 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
-      {/* 우측 상단 아카이브 버튼 */}
-      <button
-        onClick={onArchive}
-        className="pixel-btn hover-flash-text"
-        style={{
-          position: "fixed",
-          top: "16px",
-          right: "16px",
-          fontSize: "11px",
-          padding: "6px 12px",
-          zIndex: 10,
-          minHeight: "auto",
-        }}
-      >
-        {t.archive}
-      </button>
+      {/* 우측 상단 아카이브 버튼 — 키보드 열릴 때 숨김 */}
+      {!keyboardOpen && (
+        <button
+          onClick={onArchive}
+          className="pixel-btn hover-flash-text"
+          style={{
+            position: "fixed",
+            top: "16px",
+            right: "16px",
+            fontSize: "11px",
+            padding: "6px 12px",
+            zIndex: 10,
+            minHeight: "auto",
+          }}
+        >
+          {t.archive}
+        </button>
+      )}
 
       <div className="w-full max-w-[520px]">
         {/* NES 다이얼로그 프레임 */}
@@ -186,7 +188,7 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
 
             {/* 제출 버튼 */}
             <motion.div
-              className="mt-6 text-center"
+              className={`${keyboardOpen ? "mt-2" : "mt-6"} text-center`}
               animate={{ opacity: canSubmit ? 1 : 0 }}
               transition={{ duration: 0.1 }}
             >
