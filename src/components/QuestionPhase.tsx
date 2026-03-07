@@ -180,6 +180,8 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
                   fontSize: "12px",
                   padding: "8px 12px",
                   whiteSpace: "nowrap",
+                  minHeight: "auto",
+                  flexShrink: 0,
                 }}
                 title={t.nicknameRandom}
               >
