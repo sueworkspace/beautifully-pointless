@@ -125,11 +125,11 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
 
       <div className="w-full max-w-[520px]">
         {/* NES 다이얼로그 프레임 */}
-        <div className={`pixel-frame ${keyboardOpen ? "p-3" : "p-5"} md:p-10`}>
+        <div className="pixel-frame p-5 md:p-10">
           {/* 질문 — 트리플탭으로 관리자 모드 */}
           <motion.h1
             className="pixel-heading text-center"
-            style={{ marginTop: keyboardOpen ? "8px" : "40px", marginBottom: keyboardOpen ? "10px" : "20px", fontSize: keyboardOpen ? "24px" : "32px", cursor: "default" }}
+            style={{ marginTop: keyboardOpen ? "16px" : "40px", marginBottom: "20px", fontSize: "32px", cursor: "default" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.15, delay: 0.1 }}
@@ -204,29 +204,27 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
                 {t.submit}
               </button>
 
-              {/* 동의 안내 — 키보드 열릴 때 숨김 */}
-              {!keyboardOpen && (
-                <p
-                  className="pixel-label"
-                  style={{
-                    color: "var(--pixel-dark-gray)",
-                    marginTop: "12px",
-                    fontSize: "10px",
-                    letterSpacing: "0.05em",
-                    textTransform: "none",
-                  }}
-                >
-                  {t.consentPrefix}
-                  <a href="/terms" target="_blank" style={{ color: "var(--pixel-blue)", textDecoration: "underline" }}>
-                    {t.termsOfService}
-                  </a>
-                  {t.consentAnd}
-                  <a href="/privacy" target="_blank" style={{ color: "var(--pixel-blue)", textDecoration: "underline" }}>
-                    {t.privacyPolicy}
-                  </a>
-                  {t.consentSuffix}
-                </p>
-              )}
+              {/* 동의 안내 */}
+              <p
+                className="pixel-label"
+                style={{
+                  color: "var(--pixel-dark-gray)",
+                  marginTop: "12px",
+                  fontSize: "10px",
+                  letterSpacing: "0.05em",
+                  textTransform: "none",
+                }}
+              >
+                {t.consentPrefix}
+                <a href="/terms" target="_blank" style={{ color: "var(--pixel-blue)", textDecoration: "underline" }}>
+                  {t.termsOfService}
+                </a>
+                {t.consentAnd}
+                <a href="/privacy" target="_blank" style={{ color: "var(--pixel-blue)", textDecoration: "underline" }}>
+                  {t.privacyPolicy}
+                </a>
+                {t.consentSuffix}
+              </p>
             </motion.div>
           </motion.div>
         </div>
