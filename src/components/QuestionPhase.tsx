@@ -97,7 +97,7 @@ export default function QuestionPhase({ onSubmit, onArchive, onAdminTrigger }: Q
 
   return (
     <motion.div
-      className={`phase-content min-h-screen flex flex-col items-center ${keyboardOpen ? "justify-start pt-4" : "justify-center"}`}
+      className={`phase-content min-h-screen flex flex-col items-center ${keyboardOpen ? "justify-start pt-12" : "justify-center"}`}
       style={{ padding: "0 20px" }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
